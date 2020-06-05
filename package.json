@@ -1,0 +1,19 @@
+{
+  "name": "strava-training-plan",
+  "version": "0.0.1",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "build": "mkdir build && cp index.html build && cp script.js build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stephencookdev/strava-training-plan.git"
+  },
+  "author": "@stephencookdev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stephencookdev/strava-training-plan/issues"
+  },
+  "homepage": "https://github.com/stephencookdev/strava-training-plan#readme"
+}
