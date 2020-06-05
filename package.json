@@ -18,6 +18,7 @@
   "homepage": "https://github.com/stephencookdev/strava-training-plan#readme",
   "devDependencies": {
     "@snowpack/plugin-dotenv": "^1.1.1",
+    "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "snowpack": "^2.2.4"
   }
