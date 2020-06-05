@@ -2,9 +2,9 @@
   "name": "strava-training-plan",
   "version": "0.0.1",
   "description": "",
-  "main": "script.js",
   "scripts": {
-    "build": "mkdir build && cp index.html build && cp script.js build"
+    "dev": "snowpack dev",
+    "build": "snowpack build"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/stephencookdev/strava-training-plan/issues"
   },
-  "homepage": "https://github.com/stephencookdev/strava-training-plan#readme"
+  "homepage": "https://github.com/stephencookdev/strava-training-plan#readme",
+  "devDependencies": {
+    "@snowpack/plugin-dotenv": "^1.1.1",
+    "dotenv": "^8.2.0",
+    "snowpack": "^2.2.4"
+  }
 }

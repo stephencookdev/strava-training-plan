@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "mount:public": "mount public --to /",
+    "mount:src": "mount src --to /dist"
+  },
+  "plugins": ["@snowpack/plugin-dotenv"],
+  "proxy": {
+    "/.netlify": "https://clever-turing-c3816c.netlify.app/.netlify"
+  }
+}
