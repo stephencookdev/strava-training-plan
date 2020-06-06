@@ -3,6 +3,7 @@ const target = document.getElementById("target");
 const RACE_WEIGHT = 100;
 const DAYS_TO_ZERO_WEIGHTING = 7 * 6; // (6 weeks)
 const TAPER_REDUCTION = 0.65;
+const INITIAL_JUMP = 0.15;
 
 const REGION = "en-GB";
 
@@ -366,8 +367,12 @@ const main = async () => {
     const msUntilRaceFromTrainingStart =
       TARGET_RACE.date - TARGET_RACE.trainingStartDate;
 
+    const startingMileage =
+      (targetPeak.distance - potential.weeklyMileage) * INITIAL_JUMP +
+      potential.weeklyMileage;
+
     const distanceInc = Math.pow(
-      targetPeak.distance / potential.weeklyMileage,
+      targetPeak.distance / startingMileage,
       WEEK_IN_MS / msUntilRaceFromTrainingStart
     );
     const speedInc =
