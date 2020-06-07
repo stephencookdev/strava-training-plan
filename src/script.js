@@ -3,7 +3,7 @@ const target = document.getElementById("target");
 const RACE_WEIGHT = 100;
 const DAYS_TO_ZERO_WEIGHTING = 7 * 6; // (6 weeks)
 const TAPER_REDUCTION = 0.65;
-const INITIAL_JUMP = 0.15;
+const INITIAL_JUMP = 0.1;
 
 const REGION = "en-GB";
 
@@ -23,8 +23,8 @@ const TRAINING_PREFS = {
   0: null, // Monday
   1: "speed", // Tuesday
   2: "recovery", // Wednesday
-  3: null, // Thursday
-  4: "recovery", // Friday,
+  3: "recovery", // Thursday
+  4: null, // Friday,
   5: null, // Saturday
   6: "long", // Sunday
 };
@@ -312,14 +312,14 @@ const weekActivitiesSoFar = (activitiesOfWeek) => {
     .join("\n");
 };
 
-const getSuggestedPlanForWeek = (week) => {
-  const distanceWeights = Object.values(TRAINING_PREFS)
+const getSuggestedPlanForWeek = (week, prefs) => {
+  const distanceWeights = Object.values(prefs)
     .filter(Boolean)
     .map((runType) => PREF_MAP[runType].distanceWeight)
     .reduce((acc, cur) => acc + cur, 0);
 
-  const distancePlan = Object.keys(TRAINING_PREFS).reduce((acc, cur) => {
-    const runType = TRAINING_PREFS[cur];
+  const distancePlan = Object.keys(prefs).reduce((acc, cur) => {
+    const runType = prefs[cur];
     const runPrefs = PREF_MAP[runType];
 
     if (!runType) return acc;
@@ -328,6 +328,7 @@ const getSuggestedPlanForWeek = (week) => {
       ...acc,
       [cur]: {
         distance: (week.distance * runPrefs.distanceWeight) / distanceWeights,
+        date: week.weekStart + DAY_IN_MS * cur,
         runType,
       },
     };
@@ -371,35 +372,160 @@ const getSuggestedPlanForWeek = (week) => {
   return finalPlan;
 };
 
+const getActivityMatchProbability = (activity1, activity2) => {
+  const day1 = (new Date(activity1.date).getDay() + 6) % 7; // get the days such that Sunday is far away from Monday
+  const day2 = (new Date(activity2.date).getDay() + 6) % 7;
+  const daySpread = Math.abs(day1 - day2);
+  const dayProbability = daySpread === 0 ? 1 : daySpread / 7;
+
+  const distance1 = activity1.distance;
+  const distance2 = activity2.distance;
+  const distanceProbability =
+    Math.min(distance1, distance2) / Math.max(distance1, distance2);
+
+  return dayProbability * dayProbability * distanceProbability;
+};
+
+const permutator = (inputArr) => {
+  let result = [];
+
+  const permute = (arr, m = []) => {
+    if (arr.length === 0) {
+      result.push(m);
+    } else {
+      for (let i = 0; i < arr.length; i++) {
+        let curr = arr.slice();
+        let next = curr.splice(i, 1);
+        permute(curr.slice(), m.concat(next));
+      }
+    }
+  };
+
+  permute(inputArr);
+
+  return result;
+};
+
+const getPlanWithActivityGuesses = (suggestedPlan, activitiesOfWeek) => {
+  const planKeys = Object.keys(suggestedPlan);
+  const planWithActivityProbabilities = planKeys.reduce(
+    (acc, cur) => ({
+      ...acc,
+      [cur]: {
+        ...suggestedPlan[cur],
+        probabilities: activitiesOfWeek.map((activity) =>
+          getActivityMatchProbability(activity, suggestedPlan[cur])
+        ),
+      },
+    }),
+    {}
+  );
+
+  // make sure that we get all the activities permutated, but filled with nulls
+  // if there are less activities than there are plan entries
+  const activityKeys = Object.keys(activitiesOfWeek)
+    .concat(new Array(planKeys.length).fill(null))
+    .slice(0, Math.max(activitiesOfWeek.length, planKeys.length));
+
+  const attributionVariations = permutator(activityKeys);
+  const summedProbabilities = attributionVariations.map((orders) => {
+    const sum = Object.values(planWithActivityProbabilities).reduce(
+      (acc, plan, i) => {
+        return acc + (plan.probabilities[orders[i]] || 0);
+      },
+      0
+    );
+    return sum;
+  });
+
+  let maxProbability;
+  let attributions;
+  summedProbabilities.forEach((sum, i) => {
+    if (!maxProbability || sum > maxProbability) {
+      maxProbability = sum;
+      attributions = attributionVariations[i];
+    }
+  });
+
+  // plan 0 (a0, a1)     1
+  // plan 1 (a0, a1)     0
+  // plan 2 (a0, a1)     NULL
+  // SO
+  // for plan 0, we look at attributions[0], which is 1 so a1
+  // for plan i, we look at attributions[i], so activities[attributions[i]]
+
+  const planWithActivityGuesses = planKeys.reduce((acc, cur, i) => {
+    const plan = {
+      ...acc,
+      [cur]: { ...suggestedPlan[cur] },
+    };
+
+    const activity = activitiesOfWeek[attributions[i]];
+    if (activity) {
+      plan[cur].activity = activity;
+      plan[cur].activity.probability =
+        planWithActivityProbabilities[cur].probabilities[attributions[i]];
+    }
+
+    return plan;
+  }, {});
+
+  return planWithActivityGuesses;
+};
+
 const weekPlanPast = (activitiesOfWeek, totalActivities) => {
   const activitiesString = weekActivitiesSoFar(activitiesOfWeek);
 
-  return activitiesString + "\n" + `(total ${humanActivity(totalActivities)})`;
+  return (
+    "DONE!\n" +
+    activitiesString +
+    "\n" +
+    `(total ${humanActivity(totalActivities)})`
+  );
+};
+
+const humanPlan = (plan) => {
+  return Object.keys(plan)
+    .map((dayKey) => `${DAY_MAP[dayKey]}: ${humanActivity(plan[dayKey])}`)
+    .join("\n");
 };
 
 const weekPlanCurrent = (week, activitiesOfWeek, totalActivities) => {
+  const suggestedPlan = getSuggestedPlanForWeek(week, TRAINING_PREFS);
+  const planWithActivityGuesses = getPlanWithActivityGuesses(
+    suggestedPlan,
+    activitiesOfWeek
+  );
+
   const remaining = {
     distance: Math.max(0, week.distance - totalActivities.distance),
     movingTime: Math.max(0, week.movingTime - totalActivities.movingTime),
   };
 
-  const recommendedRemaining = `Recommended this week: ${humanActivity(
-    remaining
-  )}`;
+  const amendedWeek = {
+    ...week,
+    distance: remaining.distance,
+    movingTime: remaining.movingTime,
+    pace: remaining.movingTime / remaining.distance,
+  };
+  const amendedPrefs = Object.keys(TRAINING_PREFS).reduce(
+    (acc, cur) => ({
+      ...acc,
+      [cur]:
+        planWithActivityGuesses[cur] && planWithActivityGuesses[cur].activity
+          ? null
+          : TRAINING_PREFS[cur],
+    }),
+    {}
+  );
+  const amendedPlan = getSuggestedPlanForWeek(amendedWeek, amendedPrefs);
 
-  return weekActivitiesSoFar(activitiesOfWeek) + "\n" + recommendedRemaining;
+  return weekActivitiesSoFar(activitiesOfWeek) + "\n" + humanPlan(amendedPlan);
 };
 
 const weekPlanFuture = (week, activitiesOfWeek, totalActivities) => {
-  const suggestedPlan = getSuggestedPlanForWeek(week);
-
-  const suggestedString = Object.keys(suggestedPlan)
-    .map(
-      (dayKey) => `${DAY_MAP[dayKey]}: ${humanActivity(suggestedPlan[dayKey])}`
-    )
-    .join("\n");
-
-  return suggestedString;
+  const suggestedPlan = getSuggestedPlanForWeek(week, TRAINING_PREFS);
+  return humanPlan(suggestedPlan);
 };
 
 const weekPlanString = (week, sinceTrainingPlanActivities) => {
