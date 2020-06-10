@@ -4,6 +4,7 @@ const RACE_WEIGHT = 100;
 const DAYS_TO_ZERO_WEIGHTING = 7 * 6; // (6 weeks)
 const TAPER_REDUCTION = 0.65;
 const INITIAL_JUMP = 0.1;
+const KM_PACE_PER_WEAK_INC = 0.2;
 
 const REGION = "en-GB";
 
@@ -210,7 +211,7 @@ const getPeakReqs = (target) => {
 
   const targetSecondMeterPace = TARGET_RACE.movingTime / TARGET_RACE.distance;
   const targetMinuteKmPace = (1000 * targetSecondMeterPace) / 60;
-  const peakMinuteKmPace = targetMinuteKmPace + 0.4;
+  const peakMinuteKmPace = targetMinuteKmPace + KM_PACE_PER_WEAK_INC;
   const peakSecondMeterPace = (60 * peakMinuteKmPace) / 1000;
 
   return { distance: peakDistance, pace: peakSecondMeterPace };
