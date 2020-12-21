@@ -81,6 +81,11 @@ const getActivities = async (accessToken, { before, after } = {}) => {
   if (before) queryParams.push(`before=${Math.floor(before / 1000)}`);
   if (after) queryParams.push(`after=${Math.floor(after / 1000)}`);
 
+  if (after && after > new Date()) {
+    // Strava API doesn't allow future `after` dates
+    return [];
+  }
+
   const listResponse = await fetch(
     `https://www.strava.com/api/v3/athlete/activities?${queryParams.join("&")}`,
     {
