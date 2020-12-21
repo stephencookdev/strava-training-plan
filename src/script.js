@@ -15,8 +15,8 @@ const WEEK_IN_MS = DAY_IN_MS * 7;
 const TARGET_RACE = {
   distance: 42195,
   movingTime: 14400,
-  trainingStartDate: new Date("2020-05-11"),
-  date: new Date("2020-09-13Z09:00"),
+  trainingStartDate: new Date("2020-12-28"),
+  date: new Date("2021-03-01Z09:00"),
   taper: 18 * DAY_IN_MS,
 };
 
