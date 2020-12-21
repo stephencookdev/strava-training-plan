@@ -95,7 +95,7 @@ export const renderWeekPlanHtml = ({ weeks, region }) => {
   return (
     "Weeks:\n" +
     weeks
-      .map((week) => {
+      .map((week, i) => {
         const start = new Date(week.weekStart);
         const dateF = new Intl.DateTimeFormat(region, {
           weekday: "short",
@@ -103,9 +103,9 @@ export const renderWeekPlanHtml = ({ weeks, region }) => {
           day: "numeric",
         });
 
-        const weekSummary = `Week of ${dateF.format(start)} — ${humanDistance(
-          week.distance
-        )} / ${humanPace(week.pace, 1)}`;
+        const weekSummary = `Week ${i + 1} of ${dateF.format(
+          start
+        )} — ${humanDistance(week.distance)} / ${humanPace(week.pace, 1)}`;
 
         return weekSummary + "\n" + weekPlanString(week);
       })
