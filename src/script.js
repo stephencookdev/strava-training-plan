@@ -47,7 +47,7 @@ const DAY_MAP = {
 };
 
 const Riegel = {
-  R: 1.15,
+  R: 1.15, // see e.g. https://www.theguardian.com/lifeandstyle/the-running-blog/2018/feb/15/an-updated-formula-for-marathon-running-success
   getNewTime(newDistance, old) {
     return old.movingTime * Math.pow(newDistance / old.distance, Riegel.R);
   },
