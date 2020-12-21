@@ -17,7 +17,7 @@ const TARGET_RACE = {
   movingTime: 14400,
   trainingStartDate: new Date("2020-12-28"),
   date: new Date("2021-03-01Z09:00"),
-  taper: 18 * DAY_IN_MS,
+  taper: 12 * DAY_IN_MS,
 };
 
 const TRAINING_PREFS = {
