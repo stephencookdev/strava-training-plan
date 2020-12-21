@@ -1,15 +1,15 @@
 import { MINUTE_IN_MS } from "./datesUtils";
 
-export const METERS_IN_KM = 1000;
+export const KM_IN_METERS = 1000;
 
 export const humanDistance = (distance) => {
-  const distanceKm = distance / METERS_IN_KM;
+  const distanceKm = distance / KM_IN_METERS;
   return `${distanceKm.toFixed(1)}km`;
 };
 
 export const humanPace = (movingTime, distance) => {
-  const secondMeterPace = movingTime / distance;
-  const minuteKmPace = (1000 * secondMeterPace) / 60;
+  const msMeterPace = movingTime / distance;
+  const minuteKmPace = (KM_IN_METERS * msMeterPace) / MINUTE_IN_MS;
 
   const minuteKmPaceWhole = Math.floor(minuteKmPace);
   const minuteKmPaceSeconds = Math.floor(
@@ -29,7 +29,7 @@ export const parseHumanPaceKm = (paceKmStr) => {
   const seconds = parseInt(secondsStr);
 
   const minuteKmPace = minutes + seconds / 60;
-  const secondMeterPace = (60 * minuteKmPace) / METERS_IN_KM;
+  const msMeterPace = (MINUTE_IN_MS * minuteKmPace) / KM_IN_METERS;
 
-  return secondMeterPace;
+  return msMeterPace;
 };

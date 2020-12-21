@@ -1,12 +1,12 @@
 import { advanceTo, clear } from "jest-date-mock";
 import { getPeakReqs, getCurrentPotential } from "../src/runningStats";
 import { generateWeeksPlan } from "../src/weekPlan";
-import { parseHumanPaceKm, METERS_IN_KM } from "../src/unitsUtils";
+import { parseHumanPaceKm, KM_IN_METERS } from "../src/unitsUtils";
 import { DAY_IN_MS } from "../src/datesUtils";
 import { renderWeekPlanHtml } from "../src/renderUtils";
 
 const generateRun = (date, distanceKm, paceKmStr, isRace = false) => {
-  const distance = distanceKm * METERS_IN_KM;
+  const distance = distanceKm * KM_IN_METERS;
   const pace = parseHumanPaceKm(paceKmStr);
   const movingTime = distance * pace;
 

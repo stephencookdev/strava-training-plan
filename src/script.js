@@ -10,7 +10,7 @@ const REGION = "en-GB";
 
 const TARGET_RACE = {
   distance: 42195,
-  movingTime: 14400,
+  movingTime: 14400000,
   trainingStartDate: new Date("2020-12-28"),
   date: new Date("2021-03-21Z09:00"),
   taper: 12 * DAY_IN_MS,

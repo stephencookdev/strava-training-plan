@@ -1,4 +1,5 @@
-import { DAY_IN_MS, WEEK_IN_MS } from "./datesUtils";
+import { DAY_IN_MS, MINUTE_IN_MS, WEEK_IN_MS } from "./datesUtils";
+import { KM_IN_METERS } from "./unitsUtils";
 
 const RACE_WEIGHT = 100;
 const DAYS_TO_ZERO_WEIGHTING = 7 * 6; // (6 weeks)
@@ -78,12 +79,12 @@ export const getCurrentPotential = (activities, targetRace) => {
 export const getPeakReqs = (targetRace) => {
   const peakDistance = 2 * targetRace.distance;
 
-  const targetSecondMeterPace = targetRace.movingTime / targetRace.distance;
-  const targetMinuteKmPace = (1000 * targetSecondMeterPace) / 60;
+  const targetMsMeterPace = targetRace.movingTime / targetRace.distance;
+  const targetMinuteKmPace = (KM_IN_METERS * targetMsMeterPace) / MINUTE_IN_MS;
   const peakMinuteKmPace = targetMinuteKmPace + KM_PACE_PER_WEAK_INC;
-  const peakSecondMeterPace = (60 * peakMinuteKmPace) / 1000;
+  const peakMsMeterPace = (MINUTE_IN_MS * peakMinuteKmPace) / KM_IN_METERS;
 
-  return { distance: peakDistance, pace: peakSecondMeterPace };
+  return { distance: peakDistance, pace: peakMsMeterPace };
 };
 
 export const Riegel = {

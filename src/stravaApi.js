@@ -1,3 +1,5 @@
+import { SECOND_IN_MS } from "./datesUtils";
+
 export const grabAccessTokens = async () => {
   const queryParams = new URLSearchParams(location.search);
   const authCode = queryParams.get("code");
@@ -42,7 +44,7 @@ export const getActivities = async (accessToken, { before, after } = {}) => {
     return {
       date: new Date(activity.start_date),
       distance: activity.distance,
-      movingTime: activity.moving_time,
+      movingTime: activity.moving_time * SECOND_IN_MS,
       isRace: activity.workout_type === 1,
     };
   });
