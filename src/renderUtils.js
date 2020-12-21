@@ -1,4 +1,5 @@
-import { WEEK_IN_MS, humanDistance, humanPace } from "./unitsUtils";
+import { humanDistance, humanPace } from "./unitsUtils";
+import { getWeeklyIncs } from "./runningStats";
 
 const DAY_MAP = {
   0: "Monday",
@@ -12,23 +13,15 @@ const DAY_MAP = {
 
 export const renderMetaStatsHtml = ({
   potential,
-  targetRace,
+  target,
   riegelRacePrediction,
   targetPeak,
-  startingMileage,
 }) => {
-  const msUntilRaceFromTrainingStart =
-    targetRace.date - targetRace.trainingStartDate;
-  const distanceInc = Math.pow(
-    targetPeak.distance / startingMileage,
-    WEEK_IN_MS / msUntilRaceFromTrainingStart
+  const { distanceInc, speedInc } = getWeeklyIncs(
+    potential,
+    targetPeak,
+    target
   );
-  const speedInc =
-    1 /
-    Math.pow(
-      targetPeak.pace / potential.pace,
-      WEEK_IN_MS / msUntilRaceFromTrainingStart
-    );
 
   return `
 Potential: distance ${humanDistance(potential.distance)} / ${humanPace(
@@ -37,11 +30,11 @@ Potential: distance ${humanDistance(potential.distance)} / ${humanPace(
   )} pace
 Weekly mileage: ${humanDistance(potential.weeklyMileage)}
     
-Target pace: ${humanPace(targetRace.movingTime, targetRace.distance)}
-Target distance: ${humanDistance(targetRace.distance)}
+Target pace: ${humanPace(target.movingTime, target.distance)}
+Target distance: ${humanDistance(target.distance)}
 Riegel pace @ race distance: ${humanPace(
     riegelRacePrediction.timeAtRaceDistance,
-    targetRace.distance
+    target.distance
   )}
 Riegel distance @ race pace: ${humanDistance(
     riegelRacePrediction.distanceAtRacePace
