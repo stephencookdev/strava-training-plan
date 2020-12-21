@@ -1,3 +1,6 @@
+import { renderWeekPlanHtml, renderMetaStatsHtml } from "./renderUtils";
+import { DAY_IN_MS, WEEK_IN_MS, humanDistance, humanPace } from "./unitsUtils";
+
 const target = document.getElementById("target");
 
 const RACE_WEIGHT = 100;
@@ -7,10 +10,6 @@ const INITIAL_JUMP = 0.1;
 const KM_PACE_PER_WEAK_INC = 0.2;
 
 const REGION = "en-GB";
-
-const MINUTE_IN_MS = 1000 * 60;
-const DAY_IN_MS = MINUTE_IN_MS * 60 * 24;
-const WEEK_IN_MS = DAY_IN_MS * 7;
 
 const TARGET_RACE = {
   distance: 42195,
@@ -155,14 +154,13 @@ const getWeeklyMileage = (activities) => {
   const earliestActivity = sortedActivities[0];
   const latestActivity = sortedActivities[sortedActivities.length - 1];
 
-  const ONE_DAY = 1000 * 60 * 60 * 24;
   const daysBetween = Math.ceil(
-    (latestActivity.date - earliestActivity.date) / ONE_DAY
+    (latestActivity.date - earliestActivity.date) / DAY_IN_MS
   );
   let dayWeightingSum = 0;
   for (let i = 0; i <= daysBetween; i++) {
     dayWeightingSum += getTimeWeighting({
-      date: TARGET_RACE.trainingStartDate - ONE_DAY * i,
+      date: TARGET_RACE.trainingStartDate - DAY_IN_MS * i,
     });
   }
 
@@ -172,27 +170,6 @@ const getWeeklyMileage = (activities) => {
   );
 
   return (7 * summedMileage) / dayWeightingSum;
-};
-
-const humanDistance = (distance) => {
-  const distanceKm = distance / 1000;
-  return `${distanceKm.toFixed(1)}km`;
-};
-
-const humanPace = (movingTime, distance) => {
-  const secondMeterPace = movingTime / distance;
-  const minuteKmPace = (1000 * secondMeterPace) / 60;
-
-  const minuteKmPaceWhole = Math.floor(minuteKmPace);
-  const minuteKmPaceSeconds = Math.floor(
-    (minuteKmPace - minuteKmPaceWhole) * 60
-  )
-    .toString()
-    .padStart(2, "0");
-
-  const cookedMinuteKmPace = `${minuteKmPaceWhole}:${minuteKmPaceSeconds}`;
-
-  return cookedMinuteKmPace;
 };
 
 const humanActivity = (activity) => {
@@ -529,7 +506,7 @@ const weekPlanCurrent = (week, activitiesOfWeek, totalActivities) => {
   return weekActivitiesSoFar(activitiesOfWeek) + "\n" + humanPlan(amendedPlan);
 };
 
-const weekPlanFuture = (week, activitiesOfWeek, totalActivities) => {
+const weekPlanFuture = (week) => {
   const suggestedPlan = getSuggestedPlanForWeek(week, TRAINING_PREFS);
   return humanPlan(suggestedPlan);
 };
@@ -553,7 +530,7 @@ const weekPlanString = (week, sinceTrainingPlanActivities) => {
   if (end < Date.now()) {
     return weekPlanPast(activitiesOfWeek, totalActivities);
   } else if (start > Date.now()) {
-    return weekPlanFuture(week, activitiesOfWeek, totalActivities);
+    return weekPlanFuture(week);
   } else {
     return weekPlanCurrent(week, activitiesOfWeek, totalActivities);
   }
@@ -610,47 +587,22 @@ const main = async () => {
       taperWeeks(interleaveRestWeeks(rawWeeks), TARGET_RACE.taper)
     );
 
-    target.innerHTML = `
-      Potential: distance ${humanDistance(potential.distance)} / ${humanPace(
-      potential.movingTime,
-      potential.distance
-    )} pace
-      Weekly mileage: ${humanDistance(potential.weeklyMileage)}
-      
-      Target pace: ${humanPace(TARGET_RACE.movingTime, TARGET_RACE.distance)}
-      Target distance: ${humanDistance(TARGET_RACE.distance)}
-      Riegel pace @ race distance: ${humanPace(
-        riegelRacePrediction.timeAtRaceDistance,
-        TARGET_RACE.distance
-      )}
-      Riegel distance @ race pace: ${humanDistance(
-        riegelRacePrediction.distanceAtRacePace
-      )}
-
-      Distance INC: ${distanceInc.toFixed(2)}
-      Speed INC: ${speedInc.toFixed(2)}
-
-      Weeks:
-${weeks
-  .map((week) => {
-    const start = new Date(week.weekStart);
-    const dateF = new Intl.DateTimeFormat(REGION, {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
+    const metaStatsHtml = renderMetaStatsHtml({
+      potential,
+      targetRace: TARGET_RACE,
+      riegelRacePrediction,
+      targetPeak,
+      potential,
+      startingMileage,
+    });
+    const weekPlanHtml = renderWeekPlanHtml({
+      weeks,
+      region: REGION,
+      weekPlanString, // TODO this shouldn't be passed through like this
+      sinceTrainingPlanActivities,
     });
 
-    const weekSummary = `Week of ${dateF.format(start)} — ${humanDistance(
-      week.distance
-    )} / ${humanPace(week.pace, 1)}`;
-
-    return (
-      weekSummary + "\n" + weekPlanString(week, sinceTrainingPlanActivities)
-    );
-  })
-  .join("\n\n")}
-    `;
-
+    target.innerHTML = metaStatsHtml + "\n\n" + weekPlanHtml;
     target.style = "white-space: pre;";
   } else {
     const button = document.createElement("a");
