@@ -5,10 +5,10 @@ const DAYS_TO_ZERO_WEIGHTING = 7 * 6; // (6 weeks)
 const KM_PACE_PER_WEAK_INC = 0.2;
 const INITIAL_JUMP = 0.1;
 
-const getTimeWeighting = (activity, target) => {
+const getTimeWeighting = (activity, targetRace) => {
   const date = activity.date;
   const ZERO_THRESHOLD = DAY_IN_MS * DAYS_TO_ZERO_WEIGHTING;
-  const timeOfZero = target.trainingStartDate - ZERO_THRESHOLD;
+  const timeOfZero = targetRace.trainingStartDate - ZERO_THRESHOLD;
 
   const t = Math.max(0, Math.min(1, (date - timeOfZero) / ZERO_THRESHOLD));
 
@@ -19,7 +19,7 @@ const getRaceWeighting = (activity) => {
   return activity.isRace ? RACE_WEIGHT : 1;
 };
 
-const getWeeklyMileage = (activities, target) => {
+const getWeeklyMileage = (activities, targetRace) => {
   const sortedActivities = activities.sort((a, b) => a.date - b.date);
   const earliestActivity = sortedActivities[0];
   const latestActivity = sortedActivities[sortedActivities.length - 1];
@@ -31,24 +31,24 @@ const getWeeklyMileage = (activities, target) => {
   for (let i = 0; i <= daysBetween; i++) {
     dayWeightingSum += getTimeWeighting(
       {
-        date: target.trainingStartDate - DAY_IN_MS * i,
+        date: targetRace.trainingStartDate - DAY_IN_MS * i,
       },
-      target
+      targetRace
     );
   }
 
   const summedMileage = activities.reduce(
-    (acc, cur) => acc + cur.distance * getTimeWeighting(cur, target),
+    (acc, cur) => acc + cur.distance * getTimeWeighting(cur, targetRace),
     0
   );
 
   return (7 * summedMileage) / dayWeightingSum;
 };
 
-export const getCurrentPotential = (activities, target) => {
+export const getCurrentPotential = (activities, targetRace) => {
   const cookedActivities = activities.map((activity) => ({
     ...activity,
-    weight: getTimeWeighting(activity, target) * getRaceWeighting(activity),
+    weight: getTimeWeighting(activity, targetRace) * getRaceWeighting(activity),
   }));
 
   const summedActivity = cookedActivities.reduce(
@@ -69,16 +69,16 @@ export const getCurrentPotential = (activities, target) => {
     distance: averageActivity.distance,
     movingTime: averageActivity.movingTime,
     pace: averageActivity.movingTime / averageActivity.distance,
-    weeklyMileage: getWeeklyMileage(activities, target),
+    weeklyMileage: getWeeklyMileage(activities, targetRace),
   };
 
   return potential;
 };
 
-export const getPeakReqs = (target) => {
-  const peakDistance = 2 * target.distance;
+export const getPeakReqs = (targetRace) => {
+  const peakDistance = 2 * targetRace.distance;
 
-  const targetSecondMeterPace = target.movingTime / target.distance;
+  const targetSecondMeterPace = targetRace.movingTime / targetRace.distance;
   const targetMinuteKmPace = (1000 * targetSecondMeterPace) / 60;
   const peakMinuteKmPace = targetMinuteKmPace + KM_PACE_PER_WEAK_INC;
   const peakSecondMeterPace = (60 * peakMinuteKmPace) / 1000;
@@ -96,8 +96,9 @@ export const Riegel = {
   },
 };
 
-export const getWeeklyIncs = (potential, targetPeak, target) => {
-  const msUntilRaceFromTrainingStart = target.date - target.trainingStartDate;
+export const getWeeklyIncs = (potential, targetPeak, targetRace) => {
+  const msUntilRaceFromTrainingStart =
+    targetRace.date - targetRace.trainingStartDate;
 
   const startingMileage =
     (targetPeak.distance - potential.weeklyMileage) * INITIAL_JUMP +

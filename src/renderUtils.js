@@ -13,14 +13,14 @@ const DAY_MAP = {
 
 export const renderMetaStatsHtml = ({
   potential,
-  target,
+  targetRace,
   riegelRacePrediction,
   targetPeak,
 }) => {
   const { distanceInc, speedInc } = getWeeklyIncs(
     potential,
     targetPeak,
-    target
+    targetRace
   );
 
   return `
@@ -30,11 +30,11 @@ Potential: distance ${humanDistance(potential.distance)} / ${humanPace(
   )} pace
 Weekly mileage: ${humanDistance(potential.weeklyMileage)}
     
-Target pace: ${humanPace(target.movingTime, target.distance)}
-Target distance: ${humanDistance(target.distance)}
+Target pace: ${humanPace(targetRace.movingTime, targetRace.distance)}
+Target distance: ${humanDistance(targetRace.distance)}
 Riegel pace @ race distance: ${humanPace(
     riegelRacePrediction.timeAtRaceDistance,
-    target.distance
+    targetRace.distance
   )}
 Riegel distance @ race pace: ${humanDistance(
     riegelRacePrediction.distanceAtRacePace

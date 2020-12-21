@@ -60,7 +60,7 @@ const main = async () => {
 
     const metaStatsHtml = renderMetaStatsHtml({
       potential,
-      target: TARGET_RACE,
+      targetRace: TARGET_RACE,
       riegelRacePrediction,
       targetPeak,
     });

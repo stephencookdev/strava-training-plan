@@ -15,13 +15,13 @@ const PREF_MAP = {
   long: { distanceWeight: 3, targetPace: true },
 };
 
-const getRawWeeks = (target, targetPeak, distanceInc, speedInc) => {
+const getRawWeeks = (targetRace, targetPeak, distanceInc, speedInc) => {
   // normalise our INC vars, we shouldn't ever be decreasing things
   distanceInc = Math.max(1, distanceInc);
   speedInc = Math.max(1, speedInc);
 
   const numberOfDays = Math.ceil(
-    (target.date - target.trainingStartDate) / DAY_IN_MS
+    (targetRace.date - targetRace.trainingStartDate) / DAY_IN_MS
   );
   const numberOfWeeks = Math.floor(numberOfDays / 7);
 
@@ -33,17 +33,19 @@ const getRawWeeks = (target, targetPeak, distanceInc, speedInc) => {
       distance: targetPeak.distance * Math.pow(1 / distanceInc, power),
       pace: targetPeak.pace * Math.pow(speedInc, power),
       weekStart:
-        getStartOfDay(target.date - WEEK_IN_MS * (numberOfWeeks - i)) +
+        getStartOfDay(targetRace.date - WEEK_IN_MS * (numberOfWeeks - i)) +
         DAY_IN_MS,
-      weekEnd: getEndOfDay(target.date - WEEK_IN_MS * (numberOfWeeks - i - 1)),
+      weekEnd: getEndOfDay(
+        targetRace.date - WEEK_IN_MS * (numberOfWeeks - i - 1)
+      ),
     };
   }
 
   return weeks;
 };
 
-const taperWeeks = (weeks, target) => {
-  const dateOfTaper = target.date - target.taper;
+const taperWeeks = (weeks, targetRace) => {
+  const dateOfTaper = targetRace.date - targetRace.taper;
 
   return weeks.map((week, i) => {
     const taperRatio = Math.max(
@@ -97,7 +99,7 @@ const addMovingTimeToWeeks = (weeks) =>
     movingTime: week.pace * week.distance,
   }));
 
-const getSuggestedPlanForWeek = (week, trainingPrefs, target) => {
+const getSuggestedPlanForWeek = (week, trainingPrefs, targetRace) => {
   const distanceWeights = Object.values(trainingPrefs)
     .filter(Boolean)
     .map((runType) => PREF_MAP[runType].distanceWeight)
@@ -120,7 +122,8 @@ const getSuggestedPlanForWeek = (week, trainingPrefs, target) => {
 
     if (runPrefs.targetPace) {
       weekWithDistance[cur].movingTime =
-        (target.movingTime * weekWithDistance[cur].distance) / target.distance;
+        (targetRace.movingTime * weekWithDistance[cur].distance) /
+        targetRace.distance;
       weekWithDistance[cur].pace =
         weekWithDistance[cur].movingTime / weekWithDistance[cur].distance;
     }
@@ -250,9 +253,13 @@ const weekPlanCurrent = (
   activitiesOfWeek,
   totalActivities,
   trainingPrefs,
-  target
+  targetRace
 ) => {
-  const suggestedPlan = getSuggestedPlanForWeek(week, trainingPrefs, target);
+  const suggestedPlan = getSuggestedPlanForWeek(
+    week,
+    trainingPrefs,
+    targetRace
+  );
   const planWithActivityGuesses = getPlanWithActivityGuesses(
     suggestedPlan,
     activitiesOfWeek
@@ -282,7 +289,7 @@ const weekPlanCurrent = (
   const amendedPlan = getSuggestedPlanForWeek(
     amendedWeek,
     amendedPrefs,
-    target
+    targetRace
   );
 
   return {
@@ -292,10 +299,10 @@ const weekPlanCurrent = (
   };
 };
 
-const weekPlanFuture = (week, trainingPrefs) => {
+const weekPlanFuture = (week, trainingPrefs, targetRace) => {
   return {
     ...week,
-    plan: getSuggestedPlanForWeek(week, trainingPrefs, target),
+    plan: getSuggestedPlanForWeek(week, trainingPrefs, targetRace),
   };
 };
 
@@ -303,7 +310,7 @@ const getRenderableWeek = (
   week,
   sinceTrainingPlanActivities,
   trainingPrefs,
-  target
+  targetRace
 ) => {
   const start = new Date(week.weekStart);
   const end = new Date(week.weekEnd);
@@ -323,20 +330,20 @@ const getRenderableWeek = (
   if (end < Date.now()) {
     return weekPlanPast(activitiesOfWeek, totalActivities);
   } else if (start > Date.now()) {
-    return weekPlanFuture(week, trainingPrefs);
+    return weekPlanFuture(week, trainingPrefs, targetRace);
   } else {
     return weekPlanCurrent(
       week,
       activitiesOfWeek,
       totalActivities,
       trainingPrefs,
-      target
+      targetRace
     );
   }
 };
 
 export const generateWeeksPlan = (
-  target,
+  targetRace,
   trainingPrefs,
   targetPeak,
   potential,
@@ -345,15 +352,20 @@ export const generateWeeksPlan = (
   const { distanceInc, speedInc } = getWeeklyIncs(
     potential,
     targetPeak,
-    target
+    targetRace
   );
 
-  const rawWeeks = getRawWeeks(target, targetPeak, distanceInc, speedInc);
+  const rawWeeks = getRawWeeks(targetRace, targetPeak, distanceInc, speedInc);
   const weeks = addMovingTimeToWeeks(
-    taperWeeks(interleaveRestWeeks(rawWeeks), target)
+    taperWeeks(interleaveRestWeeks(rawWeeks), targetRace)
   );
   const renderableWeeks = weeks.map((week) =>
-    getRenderableWeek(week, sinceTrainingPlanActivities, trainingPrefs, target)
+    getRenderableWeek(
+      week,
+      sinceTrainingPlanActivities,
+      trainingPrefs,
+      targetRace
+    )
   );
 
   return renderableWeeks;
