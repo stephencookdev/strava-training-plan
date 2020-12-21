@@ -1,5 +1,5 @@
 import { renderWeekPlanHtml, renderMetaStatsHtml } from "./renderUtils";
-import { DAY_IN_MS, WEEK_IN_MS, humanDistance, humanPace } from "./unitsUtils";
+import { DAY_IN_MS, WEEK_IN_MS } from "./unitsUtils";
 
 const target = document.getElementById("target");
 
@@ -33,16 +33,6 @@ const PREF_MAP = {
   speed: { distanceWeight: 1.1 },
   recovery: { distanceWeight: 1 },
   long: { distanceWeight: 3, targetPace: true },
-};
-
-const DAY_MAP = {
-  0: "Monday",
-  1: "Tuesday",
-  2: "Wednesday",
-  3: "Thursday",
-  4: "Friday",
-  5: "Saturday",
-  6: "Sunday",
 };
 
 const Riegel = {
@@ -172,22 +162,6 @@ const getWeeklyMileage = (activities) => {
   return (7 * summedMileage) / dayWeightingSum;
 };
 
-const humanActivity = (activity) => {
-  const parts = [];
-
-  if (activity.runType) parts.push(`(${activity.runType})`);
-
-  if (activity.movingTime && activity.distance)
-    parts.push(
-      `${humanDistance(activity.distance)} @ ${humanPace(
-        activity.movingTime,
-        activity.distance
-      )}`
-    );
-
-  return parts.join(" ");
-};
-
 const getPeakReqs = (target) => {
   const peakDistance = 2 * target.distance;
 
@@ -288,12 +262,6 @@ const addMovingTimeToWeeks = (weeks) =>
     ...week,
     movingTime: week.pace * week.distance,
   }));
-
-const weekActivitiesSoFar = (activitiesOfWeek) => {
-  return activitiesOfWeek
-    .map((activity) => ` - ${humanActivity(activity)}`)
-    .join("\n");
-};
 
 const getSuggestedPlanForWeek = (week, prefs) => {
   const distanceWeights = Object.values(prefs)
@@ -457,20 +425,11 @@ const getPlanWithActivityGuesses = (suggestedPlan, activitiesOfWeek) => {
 };
 
 const weekPlanPast = (activitiesOfWeek, totalActivities) => {
-  const activitiesString = weekActivitiesSoFar(activitiesOfWeek);
-
-  return (
-    "DONE!\n" +
-    activitiesString +
-    "\n" +
-    `(total ${humanActivity(totalActivities)})`
-  );
-};
-
-const humanPlan = (plan) => {
-  return Object.keys(plan)
-    .map((dayKey) => `${DAY_MAP[dayKey]}: ${humanActivity(plan[dayKey])}`)
-    .join("\n");
+  return {
+    ...week,
+    activitiesOfWeek,
+    totalActivities,
+  };
 };
 
 const weekPlanCurrent = (week, activitiesOfWeek, totalActivities) => {
@@ -503,15 +462,21 @@ const weekPlanCurrent = (week, activitiesOfWeek, totalActivities) => {
   );
   const amendedPlan = getSuggestedPlanForWeek(amendedWeek, amendedPrefs);
 
-  return weekActivitiesSoFar(activitiesOfWeek) + "\n" + humanPlan(amendedPlan);
+  return {
+    ...week,
+    activitiesOfWeek,
+    plan: amendedPlan,
+  };
 };
 
 const weekPlanFuture = (week) => {
-  const suggestedPlan = getSuggestedPlanForWeek(week, TRAINING_PREFS);
-  return humanPlan(suggestedPlan);
+  return {
+    ...week,
+    plan: getSuggestedPlanForWeek(week, TRAINING_PREFS),
+  };
 };
 
-const weekPlanString = (week, sinceTrainingPlanActivities) => {
+const getRenderableWeek = (week, sinceTrainingPlanActivities) => {
   const start = new Date(week.weekStart);
   const end = new Date(week.weekEnd);
 
@@ -586,6 +551,9 @@ const main = async () => {
     const weeks = addMovingTimeToWeeks(
       taperWeeks(interleaveRestWeeks(rawWeeks), TARGET_RACE.taper)
     );
+    const renderableWeeks = weeks.map((week) =>
+      getRenderableWeek(week, sinceTrainingPlanActivities)
+    );
 
     const metaStatsHtml = renderMetaStatsHtml({
       potential,
@@ -596,10 +564,8 @@ const main = async () => {
       startingMileage,
     });
     const weekPlanHtml = renderWeekPlanHtml({
-      weeks,
+      weeks: renderableWeeks,
       region: REGION,
-      weekPlanString, // TODO this shouldn't be passed through like this
-      sinceTrainingPlanActivities,
     });
 
     target.innerHTML = metaStatsHtml + "\n\n" + weekPlanHtml;

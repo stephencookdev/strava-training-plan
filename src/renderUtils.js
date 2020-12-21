@@ -1,5 +1,15 @@
 import { WEEK_IN_MS, humanDistance, humanPace } from "./unitsUtils";
 
+const DAY_MAP = {
+  0: "Monday",
+  1: "Tuesday",
+  2: "Wednesday",
+  3: "Thursday",
+  4: "Friday",
+  5: "Saturday",
+  6: "Sunday",
+};
+
 export const renderMetaStatsHtml = ({
   potential,
   targetRace,
@@ -41,12 +51,54 @@ Distance INC: ${distanceInc.toFixed(2)}
 Speed INC: ${speedInc.toFixed(2)}`.trim();
 };
 
-export const renderWeekPlanHtml = ({
-  weeks,
-  region,
-  weekPlanString,
-  sinceTrainingPlanActivities,
-}) => {
+const humanWeekActivitiesSoFar = (activitiesOfWeek) => {
+  return activitiesOfWeek
+    .map((activity) => ` - ${humanActivity(activity)}`)
+    .join("\n");
+};
+
+const humanPlan = (plan) => {
+  return Object.keys(plan)
+    .map((dayKey) => `${DAY_MAP[dayKey]}: ${humanActivity(plan[dayKey])}`)
+    .join("\n");
+};
+
+const humanActivity = (activity) => {
+  const parts = [];
+
+  if (activity.runType) parts.push(`(${activity.runType})`);
+
+  if (activity.movingTime && activity.distance)
+    parts.push(
+      `${humanDistance(activity.distance)} @ ${humanPace(
+        activity.movingTime,
+        activity.distance
+      )}`
+    );
+
+  return parts.join(" ");
+};
+
+const weekPlanString = (week) => {
+  if (week.weekEnd < Date.now()) {
+    return (
+      "DONE!\n" +
+      humanWeekActivitiesSoFar(week.activitiesOfWeek) +
+      "\n" +
+      `(total ${humanActivity(week.totalActivities)})`
+    );
+  } else if (week.weekStart > Date.now()) {
+    return humanPlan(week.plan);
+  } else {
+    return (
+      humanWeekActivitiesSoFar(week.activitiesOfWeek) +
+      "\n" +
+      humanPlan(week.plan)
+    );
+  }
+};
+
+export const renderWeekPlanHtml = ({ weeks, region }) => {
   return (
     "Weeks:\n" +
     weeks
@@ -62,9 +114,7 @@ export const renderWeekPlanHtml = ({
           week.distance
         )} / ${humanPace(week.pace, 1)}`;
 
-        return (
-          weekSummary + "\n" + weekPlanString(week, sinceTrainingPlanActivities)
-        );
+        return weekSummary + "\n" + weekPlanString(week);
       })
       .join("\n\n")
   );
