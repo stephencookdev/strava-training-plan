@@ -99,11 +99,46 @@ const addMovingTimeToWeeks = (weeks) =>
     movingTime: week.pace * week.distance,
   }));
 
+const getMaxDayDistance = (r) => {
+  // we use https://www.desmos.com/calculator to pull out a rough equation to
+  // plot these values:
+  // 80.5k race --> 51.5k longest run
+  // 42.2k race --> 32.2k longest run
+  // 21.1k race --> 17.7k longest run
+  // 10k race   --> 8.9k longest run
+  // N.B. remember to use standard unit meters, not km
+  const a = -0.00000312143;
+  const b = 0.886528;
+  const c = 360.054;
+
+  return a * r * r + b * r + c;
+};
+
 const getSuggestedPlanForWeek = (week, trainingPrefs, targetRace) => {
-  const distanceWeights = Object.values(trainingPrefs)
-    .filter(Boolean)
-    .map((runType) => PREF_MAP[runType].distanceWeight)
-    .reduce((acc, cur) => acc + cur, 0);
+  const trainingPrefVals = Object.values(trainingPrefs).filter(Boolean);
+  const distanceWeights = trainingPrefVals.map(
+    (runType) => PREF_MAP[runType].distanceWeight
+  );
+  const distanceWeightsSum = distanceWeights.reduce((acc, cur) => acc + cur, 0);
+
+  const maxDayDistance = getMaxDayDistance(targetRace.distance); // TODO this needs to more accurately encompass more than just marathon distances
+  if (maxDayDistance < distanceWeightsSum / trainingPrefVals.length) {
+    // otherwise even if we ran the maximum amount every single day, it still
+    // wouldn't be long enough
+    throw new Error("More training days are required");
+  }
+
+  let alpha = 0;
+  const largestWeight = Math.max(...distanceWeights);
+  const largestDayDistance =
+    (largestWeight * week.distance) / distanceWeightsSum;
+  if (largestDayDistance > maxDayDistance) {
+    alpha =
+      (distanceWeightsSum * maxDayDistance * trainingPrefVals.length -
+        largestWeight * week.distance * trainingPrefVals.length) /
+      (distanceWeightsSum * week.distance -
+        largestWeight * week.distance * trainingPrefVals.length);
+  }
 
   const distancePlan = Object.keys(trainingPrefs).reduce((acc, cur) => {
     const runType = trainingPrefs[cur];
@@ -111,10 +146,16 @@ const getSuggestedPlanForWeek = (week, trainingPrefs, targetRace) => {
 
     if (!runType) return acc;
 
+    const curDistance =
+      (week.distance * runPrefs.distanceWeight) / distanceWeightsSum;
+    const alphadDistance =
+      (alpha * week.distance) / trainingPrefVals.length +
+      (1 - alpha) * curDistance;
+
     const weekWithDistance = {
       ...acc,
       [cur]: {
-        distance: (week.distance * runPrefs.distanceWeight) / distanceWeights,
+        distance: alphadDistance,
         date: week.weekStart + DAY_IN_MS * cur,
         runType,
       },
