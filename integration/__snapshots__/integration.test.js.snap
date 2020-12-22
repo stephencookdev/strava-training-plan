@@ -1,65 +1,219 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Integration Tests New plan, intermediate 1`] = `
+exports[`Integration Tests Half way through accurate week, marathon, intermediate 1`] = `
 "Weeks:
-Week 1 of Mon, Jan 1 — 37.2km / 5:53
-Tuesday: (speed) 6.7km @ 6:04
-Wednesday: (recovery) 6.1km @ 6:04
-Thursday: (recovery) 6.1km @ 6:04
-Sunday: (long) 18.3km @ 5:41
+Week 1 of Mon, Jan 1 — 37.6km / 5:53
+DONE!
+ - 6.7km @ 6:03
+ - 6.1km @ 6:03
+ - 6.1km @ 6:03
+ - 18.3km @ 5:41
+(total 37.2km @ 5:52)
 
-Week 2 of Mon, Jan 8 — 40.3km / 5:53
-Tuesday: (speed) 7.3km @ 6:04
-Wednesday: (recovery) 6.6km @ 6:04
-Thursday: (recovery) 6.6km @ 6:04
-Sunday: (long) 19.8km @ 5:41
+Week 2 of Mon, Jan 8 — 40.8km / 5:53
+ - 7.3km @ 6:03
+ - 6.6km @ 6:03
+Thursday: (recovery) 6.7km @ 6:07
+Sunday: (long) 20.1km @ 5:41
 
-Week 3 of Mon, Jan 15 — 35.0km / 5:53
-Tuesday: (speed) 6.3km @ 6:04
-Wednesday: (recovery) 5.7km @ 6:04
-Thursday: (recovery) 5.7km @ 6:04
-Sunday: (long) 17.2km @ 5:41
+Week 3 of Mon, Jan 15 — 35.3km / 5:53
+Tuesday: (speed) 6.4km @ 6:04
+Wednesday: (recovery) 5.8km @ 6:04
+Thursday: (recovery) 5.8km @ 6:04
+Sunday: (long) 17.4km @ 5:41
 
-Week 4 of Mon, Jan 22 — 47.5km / 5:53
+Week 4 of Mon, Jan 22 — 47.9km / 5:53
 Tuesday: (speed) 8.6km @ 6:04
 Wednesday: (recovery) 7.8km @ 6:04
 Thursday: (recovery) 7.8km @ 6:04
-Sunday: (long) 23.3km @ 5:41
+Sunday: (long) 23.5km @ 5:41
 
-Week 5 of Mon, Jan 29 — 51.5km / 5:53
-Tuesday: (speed) 9.3km @ 6:04
-Wednesday: (recovery) 8.4km @ 6:04
-Thursday: (recovery) 8.4km @ 6:04
-Sunday: (long) 25.3km @ 5:41
+Week 5 of Mon, Jan 29 — 51.9km / 5:53
+Tuesday: (speed) 9.4km @ 6:04
+Wednesday: (recovery) 8.5km @ 6:04
+Thursday: (recovery) 8.5km @ 6:04
+Sunday: (long) 25.5km @ 5:41
 
-Week 6 of Mon, Feb 5 — 44.7km / 5:53
+Week 6 of Mon, Feb 5 — 45.0km / 5:53
 Tuesday: (speed) 8.1km @ 6:04
-Wednesday: (recovery) 7.3km @ 6:04
-Thursday: (recovery) 7.3km @ 6:04
-Sunday: (long) 22.0km @ 5:41
+Wednesday: (recovery) 7.4km @ 6:04
+Thursday: (recovery) 7.4km @ 6:04
+Sunday: (long) 22.1km @ 5:41
 
-Week 7 of Mon, Feb 12 — 60.6km / 5:53
-Tuesday: (speed) 10.9km @ 6:04
-Wednesday: (recovery) 9.9km @ 6:04
-Thursday: (recovery) 9.9km @ 6:04
-Sunday: (long) 29.8km @ 5:41
+Week 7 of Mon, Feb 12 — 60.9km / 5:53
+Tuesday: (speed) 11.0km @ 6:04
+Wednesday: (recovery) 10.0km @ 6:04
+Thursday: (recovery) 10.0km @ 6:04
+Sunday: (long) 29.9km @ 5:41
 
-Week 8 of Mon, Feb 19 — 65.7km / 5:53
-Tuesday: (speed) 11.9km @ 6:04
-Wednesday: (recovery) 10.8km @ 6:04
-Thursday: (recovery) 10.8km @ 6:04
+Week 8 of Mon, Feb 19 — 66.0km / 5:53
+Tuesday: (speed) 12.0km @ 6:04
+Wednesday: (recovery) 10.9km @ 6:04
+Thursday: (recovery) 10.9km @ 6:04
 Sunday: (long) 32.2km @ 5:41
 
-Week 9 of Mon, Feb 26 — 57.0km / 5:53
+Week 9 of Mon, Feb 26 — 57.2km / 5:53
 Tuesday: (speed) 10.3km @ 6:04
-Wednesday: (recovery) 9.3km @ 6:04
-Thursday: (recovery) 9.3km @ 6:04
-Sunday: (long) 28.0km @ 5:41
+Wednesday: (recovery) 9.4km @ 6:04
+Thursday: (recovery) 9.4km @ 6:04
+Sunday: (long) 28.1km @ 5:41
 
-Week 10 of Mon, Mar 5 — 77.3km / 5:53
-Tuesday: (speed) 15.6km @ 6:01
-Wednesday: (recovery) 14.7km @ 6:01
-Thursday: (recovery) 14.7km @ 6:01
+Week 10 of Mon, Mar 5 — 77.5km / 5:53
+Tuesday: (speed) 15.7km @ 6:01
+Wednesday: (recovery) 14.8km @ 6:01
+Thursday: (recovery) 14.8km @ 6:01
+Sunday: (long) 32.2km @ 5:41
+
+Week 11 of Mon, Mar 12 — 40.1km / 5:53
+Tuesday: (speed) 7.2km @ 6:04
+Wednesday: (recovery) 6.6km @ 6:04
+Thursday: (recovery) 6.6km @ 6:04
+Sunday: (long) 19.7km @ 5:41
+
+Week 12 of Mon, Mar 19 — 25.5km / 5:53
+Tuesday: (speed) 4.6km @ 6:04
+Wednesday: (recovery) 4.2km @ 6:04
+Thursday: (recovery) 4.2km @ 6:04
+Sunday: (long) 12.5km @ 5:41"
+`;
+
+exports[`Integration Tests Half way through week, long run on different day, marathon, intermediate 1`] = `
+"Weeks:
+Week 1 of Mon, Jan 1 — 37.6km / 5:53
+DONE!
+ - 6.7km @ 6:03
+ - 6.1km @ 6:03
+ - 6.1km @ 6:03
+ - 18.3km @ 5:41
+(total 37.2km @ 5:52)
+
+Week 2 of Mon, Jan 8 — 40.8km / 5:53
+ - 7.3km @ 6:03
+ - 19.8km @ 5:41
+Wednesday: (recovery) 6.8km @ 6:05
+Thursday: (recovery) 6.8km @ 6:05
+
+Week 3 of Mon, Jan 15 — 35.3km / 5:53
+Tuesday: (speed) 6.4km @ 6:04
+Wednesday: (recovery) 5.8km @ 6:04
+Thursday: (recovery) 5.8km @ 6:04
+Sunday: (long) 17.4km @ 5:41
+
+Week 4 of Mon, Jan 22 — 47.9km / 5:53
+Tuesday: (speed) 8.6km @ 6:04
+Wednesday: (recovery) 7.8km @ 6:04
+Thursday: (recovery) 7.8km @ 6:04
+Sunday: (long) 23.5km @ 5:41
+
+Week 5 of Mon, Jan 29 — 51.9km / 5:53
+Tuesday: (speed) 9.4km @ 6:04
+Wednesday: (recovery) 8.5km @ 6:04
+Thursday: (recovery) 8.5km @ 6:04
+Sunday: (long) 25.5km @ 5:41
+
+Week 6 of Mon, Feb 5 — 45.0km / 5:53
+Tuesday: (speed) 8.1km @ 6:04
+Wednesday: (recovery) 7.4km @ 6:04
+Thursday: (recovery) 7.4km @ 6:04
+Sunday: (long) 22.1km @ 5:41
+
+Week 7 of Mon, Feb 12 — 60.9km / 5:53
+Tuesday: (speed) 11.0km @ 6:04
+Wednesday: (recovery) 10.0km @ 6:04
+Thursday: (recovery) 10.0km @ 6:04
+Sunday: (long) 29.9km @ 5:41
+
+Week 8 of Mon, Feb 19 — 66.0km / 5:53
+Tuesday: (speed) 12.0km @ 6:04
+Wednesday: (recovery) 10.9km @ 6:04
+Thursday: (recovery) 10.9km @ 6:04
+Sunday: (long) 32.2km @ 5:41
+
+Week 9 of Mon, Feb 26 — 57.2km / 5:53
+Tuesday: (speed) 10.3km @ 6:04
+Wednesday: (recovery) 9.4km @ 6:04
+Thursday: (recovery) 9.4km @ 6:04
+Sunday: (long) 28.1km @ 5:41
+
+Week 10 of Mon, Mar 5 — 77.5km / 5:53
+Tuesday: (speed) 15.7km @ 6:01
+Wednesday: (recovery) 14.8km @ 6:01
+Thursday: (recovery) 14.8km @ 6:01
+Sunday: (long) 32.2km @ 5:41
+
+Week 11 of Mon, Mar 12 — 40.1km / 5:53
+Tuesday: (speed) 7.2km @ 6:04
+Wednesday: (recovery) 6.6km @ 6:04
+Thursday: (recovery) 6.6km @ 6:04
+Sunday: (long) 19.7km @ 5:41
+
+Week 12 of Mon, Mar 19 — 25.5km / 5:53
+Tuesday: (speed) 4.6km @ 6:04
+Wednesday: (recovery) 4.2km @ 6:04
+Thursday: (recovery) 4.2km @ 6:04
+Sunday: (long) 12.5km @ 5:41"
+`;
+
+exports[`Integration Tests New plan, marathon, intermediate 1`] = `
+"Weeks:
+Week 1 of Mon, Jan 1 — 37.6km / 5:53
+Tuesday: (speed) 6.8km @ 6:04
+Wednesday: (recovery) 6.2km @ 6:04
+Thursday: (recovery) 6.2km @ 6:04
+Sunday: (long) 18.5km @ 5:41
+
+Week 2 of Mon, Jan 8 — 40.8km / 5:53
+Tuesday: (speed) 7.4km @ 6:04
+Wednesday: (recovery) 6.7km @ 6:04
+Thursday: (recovery) 6.7km @ 6:04
+Sunday: (long) 20.0km @ 5:41
+
+Week 3 of Mon, Jan 15 — 35.3km / 5:53
+Tuesday: (speed) 6.4km @ 6:04
+Wednesday: (recovery) 5.8km @ 6:04
+Thursday: (recovery) 5.8km @ 6:04
+Sunday: (long) 17.4km @ 5:41
+
+Week 4 of Mon, Jan 22 — 47.9km / 5:53
+Tuesday: (speed) 8.6km @ 6:04
+Wednesday: (recovery) 7.8km @ 6:04
+Thursday: (recovery) 7.8km @ 6:04
+Sunday: (long) 23.5km @ 5:41
+
+Week 5 of Mon, Jan 29 — 51.9km / 5:53
+Tuesday: (speed) 9.4km @ 6:04
+Wednesday: (recovery) 8.5km @ 6:04
+Thursday: (recovery) 8.5km @ 6:04
+Sunday: (long) 25.5km @ 5:41
+
+Week 6 of Mon, Feb 5 — 45.0km / 5:53
+Tuesday: (speed) 8.1km @ 6:04
+Wednesday: (recovery) 7.4km @ 6:04
+Thursday: (recovery) 7.4km @ 6:04
+Sunday: (long) 22.1km @ 5:41
+
+Week 7 of Mon, Feb 12 — 60.9km / 5:53
+Tuesday: (speed) 11.0km @ 6:04
+Wednesday: (recovery) 10.0km @ 6:04
+Thursday: (recovery) 10.0km @ 6:04
+Sunday: (long) 29.9km @ 5:41
+
+Week 8 of Mon, Feb 19 — 66.0km / 5:53
+Tuesday: (speed) 12.0km @ 6:04
+Wednesday: (recovery) 10.9km @ 6:04
+Thursday: (recovery) 10.9km @ 6:04
+Sunday: (long) 32.2km @ 5:41
+
+Week 9 of Mon, Feb 26 — 57.2km / 5:53
+Tuesday: (speed) 10.3km @ 6:04
+Wednesday: (recovery) 9.4km @ 6:04
+Thursday: (recovery) 9.4km @ 6:04
+Sunday: (long) 28.1km @ 5:41
+
+Week 10 of Mon, Mar 5 — 77.5km / 5:53
+Tuesday: (speed) 15.7km @ 6:01
+Wednesday: (recovery) 14.8km @ 6:01
+Thursday: (recovery) 14.8km @ 6:01
 Sunday: (long) 32.2km @ 5:41
 
 Week 11 of Mon, Mar 12 — 40.1km / 5:53

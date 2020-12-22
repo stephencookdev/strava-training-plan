@@ -211,7 +211,14 @@ const getActivityMatchProbability = (activity1, activity2) => {
   const distanceProbability =
     Math.min(distance1, distance2) / Math.max(distance1, distance2);
 
-  return dayProbability * dayProbability * distanceProbability;
+  // larger numbers mean we prefer it more
+  const dayPreference = 5;
+  const distancePreference = 3;
+
+  return (
+    Math.pow(dayProbability, dayPreference) *
+    Math.pow(distanceProbability, distancePreference)
+  );
 };
 
 const getPlanWithActivityGuesses = (suggestedPlan, activitiesOfWeek) => {
@@ -281,7 +288,7 @@ const getPlanWithActivityGuesses = (suggestedPlan, activitiesOfWeek) => {
   return planWithActivityGuesses;
 };
 
-const weekPlanPast = (activitiesOfWeek, totalActivities) => {
+const weekPlanPast = (week, activitiesOfWeek, totalActivities) => {
   return {
     ...week,
     activitiesOfWeek,
@@ -369,7 +376,7 @@ const getRenderableWeek = (
   );
 
   if (end < Date.now()) {
-    return weekPlanPast(activitiesOfWeek, totalActivities);
+    return weekPlanPast(week, activitiesOfWeek, totalActivities);
   } else if (start > Date.now()) {
     return weekPlanFuture(week, trainingPrefs, targetRace);
   } else {
