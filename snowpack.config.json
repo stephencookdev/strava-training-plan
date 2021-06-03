@@ -3,7 +3,11 @@
     "mount:public": "mount public --to /",
     "mount:src": "mount src --to /dist"
   },
-  "plugins": ["@snowpack/plugin-dotenv"],
+  "plugins": [
+    "@snowpack/plugin-dotenv",
+    "@snowpack/plugin-react-refresh",
+    "@snowpack/plugin-babel"
+  ],
   "proxy": {
     "/.netlify": "https://clever-turing-c3816c.netlify.app/.netlify"
   }

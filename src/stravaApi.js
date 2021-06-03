@@ -3,12 +3,22 @@ import { SECOND_IN_MS } from "./datesUtils";
 export const grabAccessTokens = async () => {
   const queryParams = new URLSearchParams(location.search);
   const authCode = queryParams.get("code");
+  const refreshToken = localStorage.getItem("refreshToken");
+  const currentTokenExpiresAt = parseInt(
+    localStorage.getItem("accessTokenExpiresAt")
+  );
 
-  if (!authCode) return;
+  const canRefreshCurrentToken =
+    refreshToken && new Date() > currentTokenExpiresAt;
+
+  if (!authCode && !canRefreshCurrentToken) return;
 
   const authResult = await fetch("/.netlify/functions/auth", {
     method: "POST",
-    body: authCode,
+    body: JSON.stringify(authCode ? { authCode } : { refreshToken }),
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
   const authResultJson = await authResult.json();
 
@@ -17,6 +27,10 @@ export const grabAccessTokens = async () => {
 
     localStorage.setItem("accessToken", authResultJson.accessToken);
     localStorage.setItem("refreshToken", authResultJson.refreshToken);
+    localStorage.setItem(
+      "accessTokenExpiresAt",
+      authResultJson.accessTokenExpiresAt
+    );
   }
 };
 
