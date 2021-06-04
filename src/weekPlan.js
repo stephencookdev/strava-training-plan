@@ -297,32 +297,6 @@ const weekPlanPast = (week, activitiesOfWeek, totalActivities) => {
   };
 };
 
-const keepPrefsInFuture = (weekStart, prefs) => {
-  const daysOfWeekStart = Math.floor(weekStart / DAY_IN_MS);
-  const daysOfToday = Math.floor(Date.now() / DAY_IN_MS);
-
-  const prefsArr = Object.values(prefs);
-  for (let i = 0; i < prefsArr.length; i++) {
-    if (prefsArr[i] && daysOfWeekStart + i < daysOfToday) {
-      for (let j = i + 1; j < prefsArr.length; j++) {
-        if (!prefsArr[j]) {
-          prefsArr[j] = prefsArr[i];
-          prefsArr[i] = null;
-          break;
-        }
-      }
-    }
-  }
-
-  return Object.keys(prefsArr).reduce(
-    (acc, i) => ({
-      ...acc,
-      [i]: prefsArr[i],
-    }),
-    {}
-  );
-};
-
 const weekPlanCurrent = (
   week,
   activitiesOfWeek,
@@ -351,13 +325,10 @@ const weekPlanCurrent = (
     movingTime: remaining.movingTime,
     pace: remaining.movingTime / remaining.distance,
   };
-  const onlyFuturePrefs = keepPrefsInFuture(week.weekStart, trainingPrefs);
-  const amendedPrefs = Object.keys(onlyFuturePrefs).reduce(
+  const amendedPrefs = Object.keys(trainingPrefs).reduce(
     (acc, cur) => ({
       ...acc,
-      [cur]: planWithActivityGuesses[cur]?.activity
-        ? null
-        : onlyFuturePrefs[cur],
+      [cur]: planWithActivityGuesses[cur]?.activity ? null : trainingPrefs[cur],
     }),
     {}
   );
