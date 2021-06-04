@@ -1,29 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { getActivities } from "../../stravaApi";
-import { renderWeekPlanHtml, renderMetaStatsHtml } from "../../renderUtils";
-import { DAY_IN_MS, MINUTE_IN_MS } from "../../datesUtils";
+import { renderMetaStatsHtml } from "../../renderUtils";
+import { MINUTE_IN_MS } from "../../datesUtils";
 import { getCurrentPotential, getPeakReqs, Riegel } from "../../runningStats";
 import { generateWeeksPlan } from "../../weekPlan";
-
-const REGION = "en-GB";
-
-const TARGET_RACE = {
-  distance: 42195,
-  movingTime: 14400000,
-  trainingStartDate: new Date("2021-05-31"),
-  date: new Date("2021-10-17Z09:00"),
-  taper: 12 * DAY_IN_MS,
-};
-
-const TRAINING_PREFS = {
-  0: null, // Monday
-  1: "speed", // Tuesday
-  2: "recovery", // Wednesday
-  3: "recovery", // Thursday
-  4: null, // Friday,
-  5: null, // Saturday
-  6: "long", // Sunday
-};
+import { AppContext } from "../App";
+import WeekPlan from "../WeekPlan";
 
 const useActivities = (accessToken, filters) => {
   const [activities, setActivities] = useState(null);
@@ -64,32 +46,30 @@ const useActivities = (accessToken, filters) => {
 };
 
 const LegacyApp = ({ accessToken }) => {
+  const { targetRace, trainingPrefs } = useContext(AppContext);
   const historicalActivities = useActivities(accessToken, {
-    before: TARGET_RACE.trainingStartDate,
+    before: targetRace.trainingStartDate,
   });
   const sinceTrainingPlanActivities = useActivities(accessToken, {
-    after: TARGET_RACE.trainingStartDate,
+    after: targetRace.trainingStartDate,
   });
 
   if (!historicalActivities || !sinceTrainingPlanActivities) {
     return "Loading...";
   }
 
-  const potential = getCurrentPotential(historicalActivities, TARGET_RACE);
+  const potential = getCurrentPotential(historicalActivities, targetRace);
 
   const riegelRacePrediction = {
-    timeAtRaceDistance: Riegel.getNewTime(TARGET_RACE.distance, potential),
-    distanceAtRacePace: Riegel.getNewDistance(
-      TARGET_RACE.movingTime,
-      potential
-    ),
+    timeAtRaceDistance: Riegel.getNewTime(targetRace.distance, potential),
+    distanceAtRacePace: Riegel.getNewDistance(targetRace.movingTime, potential),
   };
 
-  const targetPeak = getPeakReqs(TARGET_RACE);
+  const targetPeak = getPeakReqs(targetRace);
 
   const weeks = generateWeeksPlan(
-    TARGET_RACE,
-    TRAINING_PREFS,
+    targetRace,
+    trainingPrefs,
     targetPeak,
     potential,
     sinceTrainingPlanActivities
@@ -97,20 +77,16 @@ const LegacyApp = ({ accessToken }) => {
 
   const metaStatsHtml = renderMetaStatsHtml({
     potential,
-    targetRace: TARGET_RACE,
+    targetRace: targetRace,
     riegelRacePrediction,
     targetPeak,
-  });
-  const weekPlanHtml = renderWeekPlanHtml({
-    weeks,
-    region: REGION,
   });
 
   return (
     <div style={{ whiteSpace: "pre" }}>
       {metaStatsHtml}
       {"\n\n"}
-      {weekPlanHtml}
+      <WeekPlan weeks={weeks} />
     </div>
   );
 };

@@ -278,6 +278,7 @@ const getPlanWithActivityGuesses = (suggestedPlan, activitiesOfWeek) => {
     const activity = activitiesOfWeek[attributions[i]];
     if (activity) {
       plan[cur].activity = activity;
+      plan[cur].activity.suggestedPlan = suggestedPlan[cur];
       plan[cur].activity.probability =
         planWithActivityProbabilities[cur].probabilities[attributions[i]];
     }

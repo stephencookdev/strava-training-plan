@@ -1,7 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, createContext } from "react";
 import LoginButton from "../LoginButton";
 import LegacyApp from "../LegacyApp";
 import { grabAccessTokens } from "../../stravaApi";
+import { DAY_IN_MS } from "../../datesUtils";
+
+const REGION = "en-GB";
+
+const TARGET_RACE = {
+  distance: 42195,
+  movingTime: 14400000,
+  trainingStartDate: new Date("2021-05-31"),
+  date: new Date("2021-10-17Z09:00"),
+  taper: 12 * DAY_IN_MS,
+};
+
+const TRAINING_PREFS = {
+  0: null, // Monday
+  1: "speed", // Tuesday
+  2: "recovery", // Wednesday
+  3: "recovery", // Thursday
+  4: null, // Friday,
+  5: null, // Saturday
+  6: "long", // Sunday
+};
 
 const useAuth = () => {
   const [accessToken, setAccessToken] = useState(null);
@@ -23,13 +44,25 @@ const useAuth = () => {
   return { accessToken, loading };
 };
 
+export const AppContext = createContext("app");
+
 const App = () => {
   const { accessToken, loading } = useAuth();
 
   if (loading) return "Loading...";
   if (!accessToken) return <LoginButton />;
 
-  return <LegacyApp accessToken={accessToken} />;
+  return (
+    <AppContext.Provider
+      value={{
+        region: REGION,
+        targetRace: TARGET_RACE,
+        trainingPrefs: TRAINING_PREFS,
+      }}
+    >
+      <LegacyApp accessToken={accessToken} />
+    </AppContext.Provider>
+  );
 };
 
 export default App;
