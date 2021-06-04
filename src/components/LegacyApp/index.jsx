@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getActivities } from "../../stravaApi";
 import { renderWeekPlanHtml, renderMetaStatsHtml } from "../../renderUtils";
-import { DAY_IN_MS } from "../../datesUtils";
+import { DAY_IN_MS, MINUTE_IN_MS } from "../../datesUtils";
 import { getCurrentPotential, getPeakReqs, Riegel } from "../../runningStats";
 import { generateWeeksPlan } from "../../weekPlan";
 
@@ -28,11 +28,37 @@ const TRAINING_PREFS = {
 const useActivities = (accessToken, filters) => {
   const [activities, setActivities] = useState(null);
 
+  const now = Date.now();
+  const storedKey = JSON.stringify(filters);
+  const storedExpiresAtKey = `${storedKey}__expires_at`;
   useEffect(() => {
     (async () => {
-      setActivities(await getActivities(accessToken, filters));
+      const storedItem = localStorage.getItem(storedKey);
+      const storedItemExpiresAt = parseInt(
+        localStorage.getItem(storedExpiresAtKey)
+      );
+      if (
+        storedItem &&
+        (storedItemExpiresAt === -1 || now < storedItemExpiresAt)
+      ) {
+        setActivities(
+          JSON.parse(storedItem).map((activity) => ({
+            ...activity,
+            date: new Date(activity.date),
+          }))
+        );
+      } else {
+        const activities = await getActivities(accessToken, filters);
+        setActivities(activities);
+
+        localStorage.setItem(storedKey, JSON.stringify(activities));
+        localStorage.setItem(
+          storedExpiresAtKey,
+          filters.before < now ? -1 : now + MINUTE_IN_MS * 5
+        );
+      }
     })();
-  }, [accessToken, JSON.stringify(filters)]);
+  }, [accessToken, storedKey]);
 
   return activities;
 };

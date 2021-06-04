@@ -29,7 +29,7 @@ export const grabAccessTokens = async () => {
     localStorage.setItem("refreshToken", authResultJson.refreshToken);
     localStorage.setItem(
       "accessTokenExpiresAt",
-      authResultJson.accessTokenExpiresAt
+      authResultJson.accessTokenExpiresAt * 1000 // unix time vs js time
     );
   }
 };
