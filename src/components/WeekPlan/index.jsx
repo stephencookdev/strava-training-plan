@@ -3,7 +3,7 @@ import { DAY_IN_MS } from "../../datesUtils";
 import { humanDistance, humanPace } from "../../unitsUtils";
 import { AppContext } from "../App";
 
-const Plan = ({ plan, activitiesOfWeek = [] }) => {
+const Plan = ({ plan = {}, activitiesOfWeek = [] }) => {
   const { region } = useContext(AppContext);
   const dateF = new Intl.DateTimeFormat(region, {
     weekday: "short",
@@ -69,22 +69,49 @@ const WeekPlan = ({ weeks }) => {
     day: "numeric",
   });
 
-  console.log(weeks);
-
   return (
     <>
-      {weeks.map((week, i) => (
-        <div key={week.weekStart}>
-          <h1>
-            Week {i + 1},{" "}
-            {[week.weekStart, week.weekEnd - DAY_IN_MS]
-              .map(dateF.format)
-              .join(" – ")}
-          </h1>
-          <p>Total distance: {humanDistance(week.distance)}</p>
-          <Plan plan={week.plan} activitiesOfWeek={week.activitiesOfWeek} />
-        </div>
-      ))}
+      {weeks.map((week, i) => {
+        const isPast = week.weekEnd < new Date();
+        const isCurrent =
+          week.weekStart < new Date() && week.weekEnd > new Date();
+
+        return (
+          <details
+            key={week.weekStart}
+            style={{ opacity: isPast ? 0.5 : 1 }}
+            open={!isPast}
+          >
+            <summary>
+              <h1
+                style={{
+                  display: "inline-block",
+                  color: isCurrent ? "#d32" : "inherit",
+                }}
+              >
+                Week {i + 1},{" "}
+                {[week.weekStart, week.weekEnd - DAY_IN_MS]
+                  .map(dateF.format)
+                  .join(" – ")}
+                {isCurrent && " 🏃‍♂️"}
+              </h1>
+            </summary>
+            <p>Total planned distance: {humanDistance(week.distance)}</p>
+            {week.activitiesOfWeek && (
+              <p>
+                Total run distance:{" "}
+                {humanDistance(
+                  week.activitiesOfWeek.reduce(
+                    (acc, cur) => acc + cur.distance,
+                    0
+                  )
+                )}
+              </p>
+            )}
+            <Plan plan={week.plan} activitiesOfWeek={week.activitiesOfWeek} />
+          </details>
+        );
+      })}
     </>
   );
 };

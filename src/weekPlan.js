@@ -191,10 +191,12 @@ const getSuggestedPlanForWeek = (week, trainingPrefs, targetRace) => {
       curPlan.pace = curPlan.movingTime / curPlan.distance;
     }
 
-    return {
-      ...acc,
-      [cur]: curPlan,
-    };
+    return curPlan.distance
+      ? {
+          ...acc,
+          [cur]: curPlan,
+        }
+      : acc;
   }, {});
 
   return finalPlan;
@@ -289,14 +291,6 @@ const getPlanWithActivityGuesses = (suggestedPlan, activitiesOfWeek) => {
   return planWithActivityGuesses;
 };
 
-const weekPlanPast = (week, activitiesOfWeek, totalActivities) => {
-  return {
-    ...week,
-    activitiesOfWeek,
-    totalActivities,
-  };
-};
-
 const weekPlanCurrent = (
   week,
   activitiesOfWeek,
@@ -374,9 +368,7 @@ const getRenderableWeek = (
     { distance: 0, movingTime: 0 }
   );
 
-  if (end < Date.now()) {
-    return weekPlanPast(week, activitiesOfWeek, totalActivities);
-  } else if (start > Date.now()) {
+  if (start > Date.now()) {
     return weekPlanFuture(week, trainingPrefs, targetRace);
   } else {
     return weekPlanCurrent(
