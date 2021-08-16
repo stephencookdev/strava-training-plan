@@ -44,7 +44,7 @@ const Plan = ({ plan = {}, activitiesOfWeek = [] }) => {
         }}
       >
         <h2>{dateF.format(activity.date)}</h2>
-        <div>{activity.suggestedPlan.runType}</div>
+        {activity.suggestedPlan && <div>{activity.suggestedPlan.runType}</div>}
         <div>{`${humanDistance(activity.distance)} @ ${humanPace(
           activity.movingTime,
           activity.distance
