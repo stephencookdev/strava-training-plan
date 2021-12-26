@@ -1,8 +1,8 @@
 import React, { useState, useEffect, createContext } from "react";
 import LoginButton from "../LoginButton";
 import LegacyApp from "../LegacyApp";
-import { grabAccessTokens } from "../../stravaApi";
-import { DAY_IN_MS } from "../../datesUtils";
+import { getActivities, grabAccessTokens } from "../../stravaApi";
+import { DAY_IN_MS, MINUTE_IN_MS } from "../../datesUtils";
 
 const REGION = "en-GB";
 
@@ -24,7 +24,7 @@ const TRAINING_PREFS = {
   6: "long", // Sunday
 };
 
-const TODAY = 1629467200001;
+const TODAY = new Date("2021-06-28");
 
 const useAuth = () => {
   const [accessToken, setAccessToken] = useState(null);
@@ -46,7 +46,73 @@ const useAuth = () => {
   return { accessToken, loading };
 };
 
+const useActivities = (accessToken, filters) => {
+  const [activities, setActivities] = useState(null);
+
+  const now = Date.now();
+  const storedKey = JSON.stringify(filters);
+  const storedExpiresAtKey = `${storedKey}__expires_at`;
+  useEffect(() => {
+    (async () => {
+      const storedItem = localStorage.getItem(storedKey);
+      const storedItemExpiresAt = parseInt(
+        localStorage.getItem(storedExpiresAtKey)
+      );
+      if (
+        storedItem &&
+        (storedItemExpiresAt === -1 || now < storedItemExpiresAt)
+      ) {
+        setActivities(
+          JSON.parse(storedItem).map((activity) => ({
+            ...activity,
+            date: new Date(activity.date),
+          }))
+        );
+      } else {
+        const activities = await getActivities(accessToken, filters);
+        setActivities(activities);
+
+        localStorage.setItem(storedKey, JSON.stringify(activities));
+        localStorage.setItem(
+          storedExpiresAtKey,
+          filters.before < now ? -1 : now + MINUTE_IN_MS * 5
+        );
+      }
+    })();
+  }, [accessToken, storedKey]);
+
+  return activities;
+};
+
 export const AppContext = createContext("app");
+
+const InnerApp = ({ accessToken }) => {
+  const historicalActivities = useActivities(accessToken, {
+    before: TARGET_RACE.trainingStartDate,
+  });
+  const sinceTrainingPlanActivities = useActivities(accessToken, {
+    after: TARGET_RACE.trainingStartDate,
+  });
+
+  if (!historicalActivities || !sinceTrainingPlanActivities) {
+    return "Loading...";
+  }
+
+  const context = {
+    region: REGION,
+    targetRace: TARGET_RACE,
+    trainingPrefs: TRAINING_PREFS,
+    today: TODAY,
+    historicalActivities,
+    sinceTrainingPlanActivities,
+  };
+
+  return (
+    <AppContext.Provider value={context}>
+      <LegacyApp />
+    </AppContext.Provider>
+  );
+};
 
 const App = () => {
   const { accessToken, loading } = useAuth();
@@ -54,18 +120,7 @@ const App = () => {
   if (loading) return "Loading...";
   if (!accessToken) return <LoginButton />;
 
-  return (
-    <AppContext.Provider
-      value={{
-        region: REGION,
-        targetRace: TARGET_RACE,
-        trainingPrefs: TRAINING_PREFS,
-        today: TODAY,
-      }}
-    >
-      <LegacyApp accessToken={accessToken} />
-    </AppContext.Provider>
-  );
+  return <InnerApp accessToken={accessToken} />;
 };
 
 export default App;
