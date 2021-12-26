@@ -61,7 +61,8 @@ describe("Integration Tests", () => {
       trainingPrefs,
       targetPeak,
       potential,
-      sinceTrainingPlanActivities
+      sinceTrainingPlanActivities,
+      Date.now()
     );
 
     expect(
@@ -115,7 +116,8 @@ describe("Integration Tests", () => {
       trainingPrefs,
       targetPeak,
       potential,
-      sinceTrainingPlanActivities
+      sinceTrainingPlanActivities,
+      Date.now()
     );
 
     expect(
@@ -169,7 +171,8 @@ describe("Integration Tests", () => {
       trainingPrefs,
       targetPeak,
       potential,
-      sinceTrainingPlanActivities
+      sinceTrainingPlanActivities,
+      Date.now()
     );
 
     expect(

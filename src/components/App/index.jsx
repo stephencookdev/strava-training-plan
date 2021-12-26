@@ -24,6 +24,8 @@ const TRAINING_PREFS = {
   6: "long", // Sunday
 };
 
+const TODAY = 1629467200001;
+
 const useAuth = () => {
   const [accessToken, setAccessToken] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -58,6 +60,7 @@ const App = () => {
         region: REGION,
         targetRace: TARGET_RACE,
         trainingPrefs: TRAINING_PREFS,
+        today: TODAY,
       }}
     >
       <LegacyApp accessToken={accessToken} />

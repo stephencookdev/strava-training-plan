@@ -6,6 +6,7 @@ import { getCurrentPotential, getPeakReqs, Riegel } from "../../runningStats";
 import { generateWeeksPlan } from "../../weekPlan";
 import { AppContext } from "../App";
 import WeekPlan from "../WeekPlan";
+import WeekGraph from "../WeekGraph";
 
 const useActivities = (accessToken, filters) => {
   const [activities, setActivities] = useState(null);
@@ -46,7 +47,7 @@ const useActivities = (accessToken, filters) => {
 };
 
 const LegacyApp = ({ accessToken }) => {
-  const { targetRace, trainingPrefs } = useContext(AppContext);
+  const { targetRace, trainingPrefs, today } = useContext(AppContext);
   const historicalActivities = useActivities(accessToken, {
     before: targetRace.trainingStartDate,
   });
@@ -58,7 +59,16 @@ const LegacyApp = ({ accessToken }) => {
     return "Loading...";
   }
 
+  const allActivities = [
+    ...historicalActivities,
+    ...sinceTrainingPlanActivities,
+  ].filter((a) => a.date < today);
+
   const potential = getCurrentPotential(historicalActivities, targetRace);
+  const liveAdjustedPotential = getCurrentPotential(allActivities, {
+    ...targetRace,
+    trainingStartDate: today,
+  });
 
   const riegelRacePrediction = {
     timeAtRaceDistance: Riegel.getNewTime(targetRace.distance, potential),
@@ -72,7 +82,19 @@ const LegacyApp = ({ accessToken }) => {
     trainingPrefs,
     targetPeak,
     potential,
-    sinceTrainingPlanActivities
+    sinceTrainingPlanActivities,
+    today
+  );
+  const liveAdjustedWeeks = generateWeeksPlan(
+    {
+      ...targetRace,
+      trainingStartDate: today,
+    },
+    trainingPrefs,
+    targetPeak,
+    liveAdjustedPotential,
+    allActivities,
+    today
   );
 
   const metaStatsHtml = renderMetaStatsHtml({
@@ -86,7 +108,12 @@ const LegacyApp = ({ accessToken }) => {
     <div style={{ whiteSpace: "pre" }}>
       {metaStatsHtml}
       {"\n\n"}
-      <WeekPlan weeks={weeks} />
+      <WeekGraph
+        weeks={weeks}
+        liveAdjustedWeeks={liveAdjustedWeeks}
+        today={today}
+      />
+      <WeekPlan weeks={weeks} today={today} />
     </div>
   );
 };

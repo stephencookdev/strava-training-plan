@@ -61,7 +61,7 @@ const Plan = ({ plan = {}, activitiesOfWeek = [] }) => {
   return <div style={{ display: "flex" }}>{els}</div>;
 };
 
-const WeekPlan = ({ weeks }) => {
+const WeekPlan = ({ weeks, today }) => {
   const { region } = useContext(AppContext);
   const dateF = new Intl.DateTimeFormat(region, {
     weekday: "short",
@@ -72,9 +72,8 @@ const WeekPlan = ({ weeks }) => {
   return (
     <>
       {weeks.map((week, i) => {
-        const isPast = week.weekEnd < new Date();
-        const isCurrent =
-          week.weekStart < new Date() && week.weekEnd > new Date();
+        const isPast = week.weekEnd < today;
+        const isCurrent = week.weekStart < today && week.weekEnd > today;
 
         return (
           <details

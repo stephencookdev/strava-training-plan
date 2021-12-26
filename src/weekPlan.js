@@ -47,7 +47,7 @@ const getRawWeeks = (targetRace, targetPeak, distanceInc, speedInc) => {
 const taperWeeks = (weeks, targetRace) => {
   const dateOfTaper = targetRace.date - targetRace.taper;
 
-  return weeks.map((week, i) => {
+  return weeks.map((week) => {
     const taperRatio = Math.max(
       0,
       Math.min(
@@ -351,10 +351,10 @@ const getRenderableWeek = (
   week,
   sinceTrainingPlanActivities,
   trainingPrefs,
-  targetRace
+  targetRace,
+  today
 ) => {
   const start = new Date(week.weekStart);
-  const end = new Date(week.weekEnd);
 
   const activitiesOfWeek = sinceTrainingPlanActivities.filter(
     (activity) => week.weekStart < activity.date && activity.date < week.weekEnd
@@ -368,7 +368,7 @@ const getRenderableWeek = (
     { distance: 0, movingTime: 0 }
   );
 
-  if (start > Date.now()) {
+  if (start > today) {
     return weekPlanFuture(week, trainingPrefs, targetRace);
   } else {
     return weekPlanCurrent(
@@ -386,7 +386,8 @@ export const generateWeeksPlan = (
   trainingPrefs,
   targetPeak,
   potential,
-  sinceTrainingPlanActivities
+  sinceTrainingPlanActivities,
+  today
 ) => {
   const { distanceInc, speedInc } = getWeeklyIncs(
     potential,
@@ -403,7 +404,8 @@ export const generateWeeksPlan = (
       week,
       sinceTrainingPlanActivities,
       trainingPrefs,
-      targetRace
+      targetRace,
+      today
     )
   );
 
