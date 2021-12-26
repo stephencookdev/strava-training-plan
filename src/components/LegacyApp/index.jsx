@@ -53,6 +53,17 @@ const LegacyApp = () => {
     today
   );
 
+  const weekDiff = liveAdjustedWeeks
+    .map((adj) => {
+      const matchedWeek = weeks.find((w) => w.weekStart === adj.weekStart);
+      return adj.distance - matchedWeek.distance;
+    })
+    .reduce((acc, cur) => acc + cur, 0);
+  const totalWeekDistance = weeks
+    .map((w) => w.distance)
+    .reduce((acc, cur) => acc + cur, 0);
+  const weekDiffScore = (weekDiff * 20) / (3 * totalWeekDistance);
+
   const metaStatsHtml = renderMetaStatsHtml({
     potential,
     targetRace: targetRace,
@@ -67,7 +78,7 @@ const LegacyApp = () => {
       <WeekGraph
         weeks={weeks}
         liveAdjustedWeeks={liveAdjustedWeeks}
-        today={today}
+        weekDiffScore={weekDiffScore}
       />
       <WeekPlan weeks={weeks} today={today} />
     </div>

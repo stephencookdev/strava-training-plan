@@ -24,7 +24,7 @@ const TRAINING_PREFS = {
   6: "long", // Sunday
 };
 
-const TODAY = new Date("2021-06-28");
+const TODAY = new Date("2021-06-21");
 
 const useAuth = () => {
   const [accessToken, setAccessToken] = useState(null);
