@@ -1,6 +1,7 @@
 import React, { useState, useEffect, createContext } from "react";
 import LoginButton from "../LoginButton";
 import LegacyApp from "../LegacyApp";
+import Debugger from "../Debugger";
 import { getActivities, grabAccessTokens } from "../../stravaApi";
 import { DAY_IN_MS, MINUTE_IN_MS } from "../../datesUtils";
 
@@ -94,10 +95,6 @@ const InnerApp = ({ accessToken }) => {
     after: TARGET_RACE.trainingStartDate,
   });
 
-  if (!historicalActivities || !sinceTrainingPlanActivities) {
-    return "Loading...";
-  }
-
   const context = {
     region: REGION,
     targetRace: TARGET_RACE,
@@ -107,8 +104,18 @@ const InnerApp = ({ accessToken }) => {
     sinceTrainingPlanActivities,
   };
 
+  const [contextOverrides, setContextOverrides] = useState({});
+
+  if (!historicalActivities || !sinceTrainingPlanActivities) {
+    return "Loading...";
+  }
+
   return (
-    <AppContext.Provider value={context}>
+    <AppContext.Provider value={{ ...context, ...contextOverrides }}>
+      <Debugger
+        overrides={{ ...context, ...contextOverrides }}
+        setOverrides={setContextOverrides}
+      />
       <LegacyApp />
     </AppContext.Provider>
   );
