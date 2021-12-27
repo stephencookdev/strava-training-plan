@@ -33,11 +33,14 @@ const range =
   };
 
 const WeekGraph = ({ weeks, liveAdjustedWeeks, weekDiffScore }) => {
-  const { region } = useContext(AppContext);
+  const { region, targetRace } = useContext(AppContext);
   const dateF = new Intl.DateTimeFormat(region, {
     day: "numeric",
     month: "short",
   });
+
+  const adjustedDate =
+    targetRace.trainingStartDates[targetRace.trainingStartDates.length - 1];
 
   return (
     <div style={{ maxWidth: "800px" }}>
@@ -47,7 +50,9 @@ const WeekGraph = ({ weeks, liveAdjustedWeeks, weekDiffScore }) => {
           datasets: [
             {
               label: "Planned distance",
-              data: weeks.map((w) => w.distance),
+              data: weeks.map((w) =>
+                w.weekEnd < adjustedDate ? null : w.distance
+              ),
               tension: PLANNED_TENSION,
               ...color("rgb(99, 200, 132)"),
             },

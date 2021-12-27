@@ -1,52 +1,35 @@
 import React from "react";
 
-const Debugger = ({ overrides, setOverrides }) => {
+const Debugger = ({ context, setContext }) => {
   // const context = {
   //   region: REGION,
   //   targetRace: TARGET_RACE,
   //   trainingPrefs: TRAINING_PREFS,
   //   today: TODAY,
-  //   historicalActivities,
-  //   sinceTrainingPlanActivities,
+  //   activities,
   // };
 
-  const dateF = new Intl.DateTimeFormat(overrides.region, {
+  const dateF = new Intl.DateTimeFormat(context.region, {
     day: "numeric",
     month: "short",
     year: "2-digit",
   });
 
-  const activities = [
-    ...overrides.historicalActivities,
-    ...overrides.sinceTrainingPlanActivities,
-  ]
-    .filter((ac) => ac.date < overrides.today)
+  const activities = context.activities
+    .filter((ac) => ac.date < context.today)
     .sort((a, b) => b.date - a.date);
 
-  const getActivityType = (activity) => {
-    if (activity.date < overrides.targetRace.trainingStartDate) {
-      return "historicalActivities";
-    }
-    return "sinceTrainingPlanActivities";
-  };
-
   const addActivity = (activity) => {
-    const key = getActivityType(activity);
-
-    setOverrides({
-      ...overrides,
-      [key]: [...overrides[key], activity],
+    setContext({
+      ...context,
+      activities: [...context.activities, activity],
     });
   };
 
   const deleteActivity = (activity) => {
-    const key = getActivityType(activity);
-
-    console.log(activity, overrides[key]);
-
-    setOverrides({
-      ...overrides,
-      [key]: overrides[key].filter(
+    setContext({
+      ...context,
+      activities: context.activities.filter(
         (ac) =>
           ac.date.getTime() !== activity.date.getTime() &&
           ac.distance !== activity.distance
@@ -60,27 +43,27 @@ const Debugger = ({ overrides, setOverrides }) => {
         Today:{" "}
         <input
           type="range"
-          value={overrides.today.getTime()}
+          value={context.today.getTime()}
           onChange={(e) => {
-            setOverrides({
-              ...overrides,
+            setContext({
+              ...context,
               today: new Date(parseInt(e.target.value, 10)),
             });
           }}
-          min={overrides.targetRace.trainingStartDate.getTime()}
-          max={overrides.targetRace.date.getTime()}
+          min={context.targetRace.trainingStartDates[0].getTime()}
+          max={context.targetRace.date.getTime()}
         />
       </div>
       <div>
         Target distance:{" "}
         <input
           type="number"
-          value={overrides.targetRace.distance}
+          value={context.targetRace.distance}
           onChange={(e) => {
-            setOverrides({
-              ...overrides,
+            setContext({
+              ...context,
               targetRace: {
-                ...overrides.targetRace,
+                ...context.targetRace,
                 distance: parseInt(e.target.value, 10),
               },
             });
@@ -91,12 +74,12 @@ const Debugger = ({ overrides, setOverrides }) => {
         Target time:{" "}
         <input
           type="number"
-          value={overrides.targetRace.movingTime}
+          value={context.targetRace.movingTime}
           onChange={(e) => {
-            setOverrides({
-              ...overrides,
+            setContext({
+              ...context,
               targetRace: {
-                ...overrides.targetRace,
+                ...context.targetRace,
                 movingTime: parseInt(e.target.value, 10),
               },
             });

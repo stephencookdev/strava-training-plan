@@ -8,8 +8,10 @@ const INITIAL_JUMP = 0.1;
 
 const getTimeWeighting = (activity, targetRace) => {
   const date = activity.date;
+  const adjustedStartDate =
+    targetRace.trainingStartDates[targetRace.trainingStartDates.length - 1];
   const ZERO_THRESHOLD = DAY_IN_MS * DAYS_TO_ZERO_WEIGHTING;
-  const timeOfZero = targetRace.trainingStartDate - ZERO_THRESHOLD;
+  const timeOfZero = adjustedStartDate - ZERO_THRESHOLD;
 
   const t = Math.max(0, Math.min(1, (date - timeOfZero) / ZERO_THRESHOLD));
 
@@ -21,6 +23,8 @@ const getRaceWeighting = (activity) => {
 };
 
 const getWeeklyMileage = (activities, targetRace) => {
+  const adjustedDate =
+    targetRace.trainingStartDates[targetRace.trainingStartDates.length - 1];
   const sortedActivities = activities.sort((a, b) => a.date - b.date);
   const earliestActivity = sortedActivities[0];
   const latestActivity = sortedActivities[sortedActivities.length - 1];
@@ -32,7 +36,7 @@ const getWeeklyMileage = (activities, targetRace) => {
   for (let i = 0; i <= daysBetween; i++) {
     dayWeightingSum += getTimeWeighting(
       {
-        date: targetRace.trainingStartDate - DAY_IN_MS * i,
+        date: adjustedDate - DAY_IN_MS * i,
       },
       targetRace
     );
@@ -98,8 +102,9 @@ export const Riegel = {
 };
 
 export const getWeeklyIncs = (potential, targetPeak, targetRace) => {
-  const msUntilRaceFromTrainingStart =
-    targetRace.date - targetRace.trainingStartDate;
+  const adjustedDate =
+    targetRace.trainingStartDates[targetRace.trainingStartDates.length - 1];
+  const msUntilRaceFromTrainingStart = targetRace.date - adjustedDate;
 
   const startingMileage =
     (targetPeak.distance - potential.weeklyMileage) * INITIAL_JUMP +
@@ -116,5 +121,9 @@ export const getWeeklyIncs = (potential, targetPeak, targetRace) => {
       WEEK_IN_MS / msUntilRaceFromTrainingStart
     );
 
-  return { distanceInc, speedInc };
+  // turns 1.2 & 1.1 to 1.15
+  // turns 0.9 & 1.1 to 1
+  const combinedInc = (speedInc - 1 + (distanceInc - 1)) / 2 + 1;
+
+  return { distanceInc, speedInc, combinedInc };
 };

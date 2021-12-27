@@ -32,7 +32,7 @@ describe("Integration Tests", () => {
     const targetRace = {
       distance: 42195,
       movingTime: 14400000,
-      trainingStartDate: new Date("2018-01-01"),
+      trainingStartDates: [new Date("2018-01-01")],
       date: new Date("2018-03-25Z09:00"),
       taper: 12 * DAY_IN_MS,
     };
@@ -79,7 +79,7 @@ describe("Integration Tests", () => {
     const targetRace = {
       distance: 42195,
       movingTime: 14400000,
-      trainingStartDate: new Date("2018-01-01"),
+      trainingStartDates: [new Date("2018-01-01")],
       date: new Date("2018-03-25Z09:00"),
       taper: 12 * DAY_IN_MS,
     };
@@ -134,7 +134,7 @@ describe("Integration Tests", () => {
     const targetRace = {
       distance: 42195,
       movingTime: 14400000,
-      trainingStartDate: new Date("2018-01-01"),
+      trainingStartDates: [new Date("2018-01-01")],
       date: new Date("2018-03-25Z09:00"),
       taper: 12 * DAY_IN_MS,
     };

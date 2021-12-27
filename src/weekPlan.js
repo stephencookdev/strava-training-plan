@@ -20,9 +20,8 @@ const getRawWeeks = (targetRace, targetPeak, distanceInc, speedInc) => {
   distanceInc = Math.max(1, distanceInc);
   speedInc = Math.max(1, speedInc);
 
-  const numberOfDays = Math.ceil(
-    (targetRace.date - targetRace.trainingStartDate) / DAY_IN_MS
-  );
+  const startDate = targetRace.trainingStartDates[0];
+  const numberOfDays = Math.ceil((targetRace.date - startDate) / DAY_IN_MS);
   const numberOfWeeks = Math.floor(numberOfDays / 7);
 
   const weeks = [];
@@ -349,14 +348,14 @@ const weekPlanFuture = (week, trainingPrefs, targetRace) => {
 
 const getRenderableWeek = (
   week,
-  sinceTrainingPlanActivities,
+  activities,
   trainingPrefs,
   targetRace,
   today
 ) => {
   const start = new Date(week.weekStart);
 
-  const activitiesOfWeek = sinceTrainingPlanActivities.filter(
+  const activitiesOfWeek = activities.filter(
     (activity) => week.weekStart < activity.date && activity.date < week.weekEnd
   );
 
@@ -386,7 +385,7 @@ export const generateWeeksPlan = (
   trainingPrefs,
   targetPeak,
   potential,
-  sinceTrainingPlanActivities,
+  activities,
   today
 ) => {
   const { distanceInc, speedInc } = getWeeklyIncs(
@@ -400,13 +399,7 @@ export const generateWeeksPlan = (
     taperWeeks(interleaveRestWeeks(rawWeeks), targetRace)
   );
   const renderableWeeks = weeks.map((week) =>
-    getRenderableWeek(
-      week,
-      sinceTrainingPlanActivities,
-      trainingPrefs,
-      targetRace,
-      today
-    )
+    getRenderableWeek(week, activities, trainingPrefs, targetRace, today)
   );
 
   return renderableWeeks;

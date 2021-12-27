@@ -10,7 +10,7 @@ const REGION = "en-GB";
 const TARGET_RACE = {
   distance: 42195,
   movingTime: 14400000,
-  trainingStartDate: new Date("2021-06-07"),
+  trainingStartDates: [new Date("2021-06-07")],
   date: new Date("2021-10-17Z09:00"),
   taper: 12 * DAY_IN_MS,
 };
@@ -89,33 +89,37 @@ export const AppContext = createContext("app");
 
 const InnerApp = ({ accessToken }) => {
   const historicalActivities = useActivities(accessToken, {
-    before: TARGET_RACE.trainingStartDate,
+    before: TARGET_RACE.trainingStartDates[0],
   });
   const sinceTrainingPlanActivities = useActivities(accessToken, {
-    after: TARGET_RACE.trainingStartDate,
+    after: TARGET_RACE.trainingStartDates[0],
   });
 
-  const context = {
+  const initContext = {
     region: REGION,
     targetRace: TARGET_RACE,
     trainingPrefs: TRAINING_PREFS,
     today: TODAY,
-    historicalActivities,
-    sinceTrainingPlanActivities,
+    activities: null,
   };
 
-  const [contextOverrides, setContextOverrides] = useState({});
+  const [context, setContext] = useState(initContext);
+  useEffect(() => {
+    if (!historicalActivities || !sinceTrainingPlanActivities) return;
 
-  if (!historicalActivities || !sinceTrainingPlanActivities) {
+    setContext((context) => ({
+      ...context,
+      activities: [...historicalActivities, ...sinceTrainingPlanActivities],
+    }));
+  }, [historicalActivities, sinceTrainingPlanActivities]);
+
+  if (!context.activities) {
     return "Loading...";
   }
 
   return (
-    <AppContext.Provider value={{ ...context, ...contextOverrides }}>
-      <Debugger
-        overrides={{ ...context, ...contextOverrides }}
-        setOverrides={setContextOverrides}
-      />
+    <AppContext.Provider value={{ ...context, setContext }}>
+      <Debugger context={context} setContext={setContext} />
       <LegacyApp />
     </AppContext.Provider>
   );
