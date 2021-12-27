@@ -10,8 +10,9 @@ import { generateWeeksPlan } from "../../weekPlan";
 import { AppContext } from "../App";
 import WeekPlan from "../WeekPlan";
 import WeekGraph from "../WeekGraph";
-import ScoreAdjust from "../ScoreAdjust";
-import DifficultyAdjust from "../DifficultyAdjust";
+import Scores from "../Scores";
+import ReAdjustPlan from "../ReAdjustPlan";
+import { DAY_IN_MS } from "../../datesUtils";
 
 const LegacyApp = () => {
   const { targetRace, trainingPrefs, activities, today } =
@@ -84,17 +85,27 @@ const LegacyApp = () => {
     targetPeak,
   });
 
+  const timeSinceLastAdjustment = Math.abs(
+    today -
+      targetRace.trainingStartDates[targetRace.trainingStartDates.length - 1]
+  );
+  const adjustedRecently = timeSinceLastAdjustment < DAY_IN_MS;
+
   return (
     <div style={{ whiteSpace: "pre" }}>
       {metaStatsHtml}
       {"\n\n"}
+      <Scores
+        difficulty={difficulty}
+        weekDiffScore={weekDiffScore}
+        adjustedRecently={adjustedRecently}
+      />
+      {!adjustedRecently && <ReAdjustPlan />}
       <WeekGraph
         weeks={weeks}
         liveAdjustedWeeks={liveAdjustedWeeks}
         weekDiffScore={weekDiffScore}
       />
-      {weekDiffScore <= -1 && <ScoreAdjust />}
-      <DifficultyAdjust difficulty={difficulty} />
       <WeekPlan weeks={weeks} today={today} />
     </div>
   );

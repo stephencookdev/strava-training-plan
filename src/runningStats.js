@@ -121,9 +121,9 @@ export const getWeeklyIncs = (potential, targetPeak, targetRace) => {
       WEEK_IN_MS / msUntilRaceFromTrainingStart
     );
 
-  // turns 1.2 & 1.1 to 1.15
+  // turns 1.2 & 1.1 to 1.3
   // turns 0.9 & 1.1 to 1
-  const combinedInc = (speedInc - 1 + (distanceInc - 1)) / 2 + 1;
+  const combinedInc = speedInc - 1 + (distanceInc - 1) + 1;
 
   return { distanceInc, speedInc, combinedInc };
 };
